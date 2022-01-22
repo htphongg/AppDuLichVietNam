@@ -1,10 +1,11 @@
-import 'dart:convert';
+import 'package:app_du_lich/pages/details_account.dart';
+import 'package:flutter/material.dart';
 
+import 'dart:convert';
 import 'package:app_du_lich/api.dart';
 import 'package:app_du_lich/models/anh.dart';
 import 'package:app_du_lich/models/bai_viet.dart';
 import 'package:app_du_lich/models/user.dart';
-import 'package:flutter/material.dart';
 
 class ReView extends StatefulWidget {
   BaiViet baiViet;
@@ -16,15 +17,21 @@ class ReView extends StatefulWidget {
 
 class _ReViewState extends State<ReView> {
   late User ngViet;
+
+  Iterable dsHinhAnh = [];
+
   bool post_liked = false;
   bool post_disliked = false;
 
-  Iterable dsHinhAnh = [];
+  void setStateIfMounted(f) {
+    if (mounted) setState(f);
+  }
 
   Future<void> layThongTinNguoiViet(int user_id) async {
     await (API(url: "http://10.0.2.2:8000/thong-tin-nguoi-dung/$user_id"))
         .getDataString()
         .then((value) => ngViet = User.fromJson(json.decode(value)));
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -32,6 +39,7 @@ class _ReViewState extends State<ReView> {
     await API(url: "http://10.0.2.2:8000/ds-anh-bai-quyet/$bai_viet_id")
         .getDataString()
         .then((value) => dsHinhAnh = json.decode(value));
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -39,7 +47,6 @@ class _ReViewState extends State<ReView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    layThongTinNguoiViet(widget.baiViet.nguoi_dung_id);
     ngViet = User(
         id: 0,
         avt: "",
@@ -49,6 +56,7 @@ class _ReViewState extends State<ReView> {
         email: "",
         phonenumber: "",
         display_state: "");
+    layThongTinNguoiViet(widget.baiViet.nguoi_dung_id);
     layDsHinhAnh(widget.baiViet.id);
   }
 
@@ -66,7 +74,17 @@ class _ReViewState extends State<ReView> {
           //Tên và avt
           ListTile(
               leading: CircleAvatar(backgroundImage: NetworkImage(ngViet.avt)),
-              title: Text(ngViet.fullname),
+              title: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (builder) => DetailsAccount(
+                              user_id:
+                                  widget.baiViet.nguoi_dung_id.toString())));
+                },
+                child: Text(ngViet.fullname),
+              ),
               subtitle: Text(widget.baiViet.ngay_dang.toString())),
           //Trạng thái đánh giá
           Padding(
@@ -145,7 +163,7 @@ class _ReViewState extends State<ReView> {
           Container(
             margin: const EdgeInsets.only(left: 15, right: 15),
             child: Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 post_liked
                     ? ElevatedButton.icon(
@@ -169,32 +187,32 @@ class _ReViewState extends State<ReView> {
                         icon: const Icon(Icons.favorite),
                         label: const Text('Hữu ích'),
                       ),
-                // post_disliked
-                //     ? ElevatedButton.icon(
-                //         style: ElevatedButton.styleFrom(
-                //             primary: Colors.orange.shade900),
-                //         onPressed: () {
-                //           setState(() {
-                //             post_disliked
-                //                 ? post_disliked = false
-                //                 : post_disliked = true;
-                //           });
-                //         },
-                //         icon: const Icon(Icons.favorite),
-                //         label: const Text('Không hữu ích'),
-                //       )
-                //     : ElevatedButton.icon(
-                //         style: ElevatedButton.styleFrom(primary: Colors.grey),
-                //         onPressed: () {
-                //           setState(() {
-                //             post_disliked
-                //                 ? post_disliked = false
-                //                 : post_disliked = true;
-                //           });
-                //         },
-                //         icon: const Icon(Icons.favorite),
-                //         label: const Text('Không hữu ích'),
-                //       ),
+                post_disliked
+                    ? ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                            primary: Colors.orange.shade900),
+                        onPressed: () {
+                          setState(() {
+                            post_disliked
+                                ? post_disliked = false
+                                : post_disliked = true;
+                          });
+                        },
+                        icon: const Icon(Icons.favorite),
+                        label: const Text('Không hữu ích'),
+                      )
+                    : ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(primary: Colors.grey),
+                        onPressed: () {
+                          setState(() {
+                            post_disliked
+                                ? post_disliked = false
+                                : post_disliked = true;
+                          });
+                        },
+                        icon: const Icon(Icons.favorite),
+                        label: const Text('Không hữu ích'),
+                      ),
               ],
             ),
           )

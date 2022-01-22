@@ -1,23 +1,55 @@
-import 'package:app_du_lich/models/user.dart';
 import 'package:flutter/material.dart';
 
+import 'package:app_du_lich/pages/login.dart';
+import 'dart:convert';
+import 'package:app_du_lich/api.dart';
+import 'package:app_du_lich/models/user.dart';
 import 'package:app_du_lich/pages/details_account.dart';
 import 'package:app_du_lich/pages/send_place_name.dart';
+import 'package:flutter_session/flutter_session.dart';
 
 class Setting extends StatefulWidget {
-  // late User userinfor;
-
   const Setting({Key? key}) : super(key: key);
 
   @override
   _SettingState createState() => _SettingState();
 }
 
+Future<void> setSession() async {
+  await FlutterSession().set('userId', "");
+}
+
 class _SettingState extends State<Setting> {
+  late User tTinUser;
+
+  Future<void> layThongTinNgDung() async {
+    dynamic response = await FlutterSession().get("userId");
+    String _user_id = response.toString();
+    await API(url: "http://10.0.2.2:8000/thong-tin-ng-dung/$_user_id")
+        .getDataString()
+        .then((value) => tTinUser = User.fromJson(json.decode(value)));
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    tTinUser = User(
+        id: 0,
+        avt: "",
+        username: "",
+        password: "",
+        fullname: "",
+        email: "",
+        phonenumber: "",
+        display_state: "");
+    layThongTinNgDung();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.yellow.shade400,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: ListTile(
@@ -25,13 +57,13 @@ class _SettingState extends State<Setting> {
             'Chào mừng',
             style: TextStyle(color: Colors.white, fontSize: 14),
           ),
-          subtitle: const Text(
-            'Thanh Phong',
-            style: TextStyle(color: Colors.white, fontSize: 20),
+          subtitle: Text(
+            tTinUser.fullname,
+            style: const TextStyle(color: Colors.white, fontSize: 20),
           ),
           trailing: TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              showAlertDialog(context, "Bạn có chắc muốn thoát ứng dụng?");
             },
             child: const Text(
               'Thoát',
@@ -139,8 +171,11 @@ class _SettingState extends State<Setting> {
   Widget _buildItemAccount(IconData icon, String title) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (builder) => const DetailsAccount()));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (builder) =>
+                    DetailsAccount(user_id: tTinUser.id.toString())));
       },
       child: ListTile(
         leading: Icon(icon),
@@ -162,4 +197,38 @@ class _SettingState extends State<Setting> {
       ),
     );
   }
+}
+
+showAlertDialog(BuildContext context, String message) {
+  Widget okButton = TextButton(
+    child: const Text("Thoát"),
+    onPressed: () {
+      Navigator.pop(context);
+      setSession();
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (builder) => const Login()),
+          (Route<dynamic> route) => false);
+    },
+  );
+
+  Widget cancelButton = TextButton(
+    child: const Text("Huỷ bỏ"),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  );
+
+  AlertDialog alert = AlertDialog(
+    title: const Text("Thông báo"),
+    content: Text(message),
+    actions: [okButton, cancelButton],
+  );
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }

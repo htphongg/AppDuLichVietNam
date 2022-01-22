@@ -1,14 +1,18 @@
-import 'dart:convert';
+import 'package:flutter/material.dart';
 
+import 'dart:convert';
 import 'package:app_du_lich/api.dart';
 import 'package:app_du_lich/models/dia_danh.dart';
 import 'package:app_du_lich/models/mien.dart';
+import 'package:app_du_lich/models/vung.dart';
 import 'package:app_du_lich/pages/place_name.dart';
-import 'package:app_du_lich/pages/result_place_name.dart';
-import 'package:flutter/material.dart';
+import 'package:app_du_lich/pages/result_place_name_domain.dart';
+import 'package:app_du_lich/pages/result_place_name_region.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:app_du_lich/models/hoat_dong.dart';
+import 'package:app_du_lich/pages/result_place_name_activity.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -23,8 +27,15 @@ class _HomeState extends State<Home> {
 
   Iterable dsDiaDanh = [];
   Iterable dsDiaDanhHot = [];
-  Iterable dsMien = [];
   List<DiaDanh> lst = [];
+
+  Iterable dsMien = [];
+  Iterable dsVung = [];
+  Iterable dsHoatDong = [];
+
+  void setStateIfMounted(f) {
+    if (mounted) setState(f);
+  }
 
   Future<void> layDsDiaDanh() async {
     await API(url: "http://10.0.2.2:8000/ds-dia-danh")
@@ -32,6 +43,7 @@ class _HomeState extends State<Home> {
         .then((value) {
       dsDiaDanh = json.decode(value);
     });
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -41,10 +53,12 @@ class _HomeState extends State<Home> {
         .then((value) {
       dsDiaDanhHot = json.decode(value);
     });
-
+    lst = [];
     dsDiaDanhHot.forEach((element) {
       lst.add(DiaDanh.fromJson(element));
     });
+    if (!mounted) return;
+
     setState(() {});
   }
 
@@ -52,7 +66,33 @@ class _HomeState extends State<Home> {
     await API(url: "http://10.0.2.2:8000/ds-mien")
         .getDataString()
         .then((value) => dsMien = json.decode(value));
+    if (!mounted) return;
+
     setState(() {});
+  }
+
+  Future<void> layDsVung() async {
+    await API(url: "http://10.0.2.2:8000/ds-vung")
+        .getDataString()
+        .then((value) => dsVung = json.decode(value));
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  Future<void> layDsHoatDong() async {
+    await API(url: "http://10.0.2.2:8000/ds-hoat-dong")
+        .getDataString()
+        .then((value) => dsHoatDong = json.decode(value));
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  Future<void> refresh() async {
+    await layDsDiaDanh();
+    // await layDsDiaDanhHot();
+    // await layDsMien();
+    // await layDsVung();
+    // await layDsHoatDong();
   }
 
   @override
@@ -62,6 +102,8 @@ class _HomeState extends State<Home> {
     layDsDiaDanh();
     layDsDiaDanhHot();
     layDsMien();
+    layDsVung();
+    layDsHoatDong();
   }
 
   final listBanner = [
@@ -73,71 +115,72 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Trang chủ'),
-        ),
-        body: Container(
-          color: Colors.grey.shade200,
-          height: double.infinity,
-          child: ListView(
-            children: [
-              _buildTitle('Xách ba lô lên và đi nào !'),
-              _buildBanner(),
-              _buildTitle('Địa điểm hot gần đây'),
-              //Start - slider
-              dsDiaDanhHot.length > 0
-                  ? Column(
-                      children: [
-                        CarouselSlider.builder(
-                          carouselController: _controller,
-                          itemCount: lst.length,
-                          itemBuilder: (context, index, readIndex) {
-                            final image_path = lst[index].avt;
-                            return _buildImageDiaDanhHot(
-                                image_path, lst[index]);
-                          },
-                          options: CarouselOptions(
-                            initialPage: 0,
-                            height: 250,
-                            autoPlay: true,
-                            viewportFraction: 1,
-                            enableInfiniteScroll: false,
-                            enlargeCenterPage: true,
-                            enlargeStrategy: CenterPageEnlargeStrategy.height,
-                            autoPlayInterval: const Duration(seconds: 3),
-                            onPageChanged: (index, reason) {
-                              setState(() {
-                                activeIndex = index;
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        _buildIndicator(),
-                      ],
-                    )
-                  : const Center(child: CircularProgressIndicator()),
-              //End - slider
-              const SizedBox(height: 15),
-              _buildTitle('Khám phá'),
-              dsDiaDanh.length > 0
-                  ? Center(
-                      child: Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
+    return RefreshIndicator(
+      onRefresh: () => refresh(),
+      child: Scaffold(
+          appBar: AppBar(title: const Text('Trang chủ')),
+          body: Container(
+            color: Colors.grey.shade200,
+            height: double.infinity,
+            child: ListView(
+              children: [
+                _buildTitle('Xách ba lô lên và đi nào !'),
+                _buildBanner(),
+                _buildTitle('Địa điểm hot gần đây'),
+                //Start - slider
+                dsDiaDanhHot.length > 0
+                    ? Column(
                         children: [
-                          ...(dsDiaDanh.map((diadanh) =>
-                              _buildDiaDanh(DiaDanh.fromJson(diadanh)))),
+                          CarouselSlider.builder(
+                            carouselController: _controller,
+                            itemCount: lst.length,
+                            itemBuilder: (context, index, readIndex) {
+                              final image_path = lst[index].avt;
+                              return _buildImageDiaDanhHot(
+                                  image_path, lst[index]);
+                            },
+                            options: CarouselOptions(
+                              initialPage: 0,
+                              height: 250,
+                              autoPlay: true,
+                              viewportFraction: 1,
+                              enableInfiniteScroll: false,
+                              enlargeCenterPage: true,
+                              enlargeStrategy: CenterPageEnlargeStrategy.height,
+                              autoPlayInterval: const Duration(seconds: 3),
+                              onPageChanged: (index, reason) {
+                                setState(() {
+                                  activeIndex = index;
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildIndicator(),
                         ],
-                      ),
-                    )
-                  : const Center(child: CircularProgressIndicator()),
-              const SizedBox(height: 20),
-            ],
+                      )
+                    : const Center(child: CircularProgressIndicator()),
+                //End - slider
+                const SizedBox(height: 15),
+                _buildTitle('Khám phá'),
+                dsDiaDanh.length > 0
+                    ? Center(
+                        child: Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            ...(dsDiaDanh.map((diadanh) =>
+                                _buildDiaDanh(DiaDanh.fromJson(diadanh)))),
+                          ],
+                        ),
+                      )
+                    : const Center(child: CircularProgressIndicator()),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
-        ),
-        drawer: Drawer(child: _builDrawer()));
+          drawer: Drawer(child: _builDrawer())),
+    );
   }
 
   Widget _buildDiaDanh(DiaDanh diadanh) {
@@ -360,34 +403,7 @@ class _HomeState extends State<Home> {
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w300),
           ),
           children: [
-            ListTile(
-              title: const Text('Trung du miền núi phía Bắc'),
-              onTap: () {},
-            ),
-            ListTile(
-              title: const Text('Đồng bằng sông Hồng và duyên hải Đông Bắc'),
-              onTap: () {},
-            ),
-            ListTile(
-              title: const Text('Bắc Trung Bộ'),
-              onTap: () {},
-            ),
-            ListTile(
-              title: const Text('Duyên hải Nam Trung Bộ'),
-              onTap: () {},
-            ),
-            ListTile(
-              title: const Text('Tây Nguyên'),
-              onTap: () {},
-            ),
-            ListTile(
-              title: const Text('Đông Nam Bộ'),
-              onTap: () {},
-            ),
-            ListTile(
-              title: const Text('Tây Nam Bộ'),
-              onTap: () {},
-            ),
+            ...(dsVung.map((vung) => _buildVung(context, Vung.fromJson(vung))))
           ],
         ),
         ListTile(
@@ -400,38 +416,8 @@ class _HomeState extends State<Home> {
                 color: Colors.blue.shade700),
           ),
         ),
-        ListTile(
-          trailing: const Padding(
-            padding: EdgeInsets.only(right: 25),
-            child: Icon(FontAwesomeIcons.motorcycle),
-          ),
-          title: const Text('Đi phượt'),
-          onTap: () {},
-        ),
-        ListTile(
-          trailing: const Padding(
-            padding: EdgeInsets.only(right: 25),
-            child: Icon(FontAwesomeIcons.hotel),
-          ),
-          title: const Text('Nghĩ dưỡng'),
-          onTap: () {},
-        ),
-        ListTile(
-          trailing: const Padding(
-            padding: EdgeInsets.only(right: 25),
-            child: Icon(FontAwesomeIcons.umbrellaBeach),
-          ),
-          title: const Text('Dã ngoại'),
-          onTap: () {},
-        ),
-        ListTile(
-          trailing: const Padding(
-            padding: EdgeInsets.only(right: 25),
-            child: Icon(FontAwesomeIcons.campground),
-          ),
-          title: const Text('Cắm trại'),
-          onTap: () {},
-        ),
+        ...(dsHoatDong.map((hoatDong) =>
+            _buildHoatDong(context, HoatDong.fromJson(hoatDong)))),
         const SizedBox(height: 60)
       ],
     );
@@ -442,8 +428,35 @@ Widget _buildMien(BuildContext context, Mien mien) {
   return ListTile(
     title: Text(mien.ten_mien),
     onTap: () {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (builder) => ResultPlaceName(mien: mien)));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (builder) => ResultPlaceName_Domain(mien: mien)));
+    },
+  );
+}
+
+Widget _buildVung(BuildContext context, Vung vung) {
+  return ListTile(
+    title: Text(vung.ten_vung),
+    onTap: () {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (builder) => ResultPlaceName_Region(vung: vung)));
+    },
+  );
+}
+
+Widget _buildHoatDong(BuildContext context, HoatDong hoatDong) {
+  return ListTile(
+    title: Text(hoatDong.ten),
+    onTap: () {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (builder) =>
+                  ResultPlaceName_Activity(hoatDong: hoatDong)));
     },
   );
 }

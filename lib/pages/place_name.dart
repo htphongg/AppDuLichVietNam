@@ -7,6 +7,7 @@ import 'package:app_du_lich/pages/details_restaurant.dart';
 import 'package:app_du_lich/pages/review_post.dart';
 import 'package:app_du_lich/pages/write_review_post.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_session/flutter_session.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:map_launcher/map_launcher.dart';
@@ -32,6 +33,7 @@ class _PlaceNameState extends State<PlaceName> {
   int activeIndex = 0;
   bool liked = false;
 
+  Iterable resultLikeState = [];
   Iterable dsHinhAnh = [];
   Iterable dsMonAn = [];
   Iterable dsQuanAn = [];
@@ -75,15 +77,35 @@ class _PlaceNameState extends State<PlaceName> {
     setState(() {});
   }
 
-  Future<void> like(int dia_danh_id, int nguoi_dung_id) async {
-    await API(url: "http://10.0.2.2:8000/like/$dia_danh_id/$nguoi_dung_id")
+  Future<void> like(int dia_danh_id) async {
+    dynamic response = await FlutterSession().get("userId");
+    String _user_id = response.toString();
+
+    await API(url: "http://10.0.2.2:8000/like/$dia_danh_id/$_user_id")
         .getDataString();
     setState(() {});
   }
 
-  Future<void> unlike(int dia_danh_id, int nguoi_dung_id) async {
-    await API(url: "http://10.0.2.2:8000/unlike/$dia_danh_id/$nguoi_dung_id")
+  Future<void> unlike(int dia_danh_id) async {
+    dynamic response = await FlutterSession().get("userId");
+    String _user_id = response.toString();
+    await API(url: "http://10.0.2.2:8000/unlike/$dia_danh_id/$_user_id")
         .getDataString();
+    setState(() {});
+  }
+
+  Future<void> trangThaiThich(int dia_danh_id) async {
+    dynamic response = await FlutterSession().get("userId");
+    String _user_id = response.toString();
+    await API(
+            url: "http://10.0.2.2:8000/trang-thai-thich/$dia_danh_id/$_user_id")
+        .getDataString()
+        .then((value) => resultLikeState = json.decode(value));
+
+    if (resultLikeState.elementAt(0)["state"] == "true")
+      liked = true;
+    else
+      liked = false;
     setState(() {});
   }
 
@@ -99,6 +121,7 @@ class _PlaceNameState extends State<PlaceName> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    trangThaiThich(widget.diaDanh.id);
     layDsHinhAnh(widget.diaDanh.id);
     layDsQuanAn(widget.diaDanh.id);
     layDsMonAn(widget.diaDanh.id);
@@ -182,59 +205,63 @@ class _PlaceNameState extends State<PlaceName> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    liked
-                        ? SizedBox(
-                            width: 200,
-                            child: Text(
-                              "Bạn và " +
+                resultLikeState.length > 0
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          liked
+                              ? SizedBox(
+                                  width: 200,
+                                  child: Text(
+                                    "Bạn và " +
+                                        widget.diaDanh.luot_thich.toString() +
+                                        " người khác thích địa điểm này.",
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                )
+                              : Text(
                                   widget.diaDanh.luot_thich.toString() +
-                                  " người khác thích địa điểm này.",
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
+                                      " người thích địa điểm này.",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                                primary: Colors.grey.shade300),
+                            onPressed: () {
+                              liked
+                                  ? unlike(widget.diaDanh.id)
+                                  : like(widget.diaDanh.id);
+                              setState(() {
+                                liked ? liked = false : liked = true;
+                              });
+                            },
+                            icon: liked
+                                ? const Icon(
+                                    Icons.thumb_up_outlined,
+                                    size: 30,
+                                    color: Colors.blue,
+                                  )
+                                : const Icon(Icons.thumb_up_outlined,
+                                    size: 30, color: Colors.black),
+                            label: liked
+                                ? const Text('Đã thích',
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.blue))
+                                : const Text('Thích',
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.black)),
                           )
-                        : Text(
-                            widget.diaDanh.luot_thich.toString() +
-                                " người thích địa điểm này.",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                          primary: Colors.grey.shade300),
-                      onPressed: () {
-                        liked
-                            ? unlike(widget.diaDanh.id, 1)
-                            : like(widget.diaDanh.id, 1);
-                        setState(() {
-                          liked ? liked = false : liked = true;
-                        });
-                      },
-                      icon: liked
-                          ? const Icon(
-                              Icons.thumb_up_outlined,
-                              size: 30,
-                              color: Colors.blue,
-                            )
-                          : const Icon(Icons.thumb_up_outlined,
-                              size: 30, color: Colors.black),
-                      label: liked
-                          ? const Text('Đã thích',
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.blue))
-                          : const Text('Thích',
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.black)),
-                    )
-                  ],
-                ),
+                        ],
+                      )
+                    : const SizedBox(),
                 Container(
                   child: TextButton(
                     child: const Text(

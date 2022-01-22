@@ -2,23 +2,24 @@ import 'dart:convert';
 
 import 'package:app_du_lich/api.dart';
 import 'package:app_du_lich/models/dia_danh.dart';
-import 'package:app_du_lich/models/mien.dart';
+import 'package:app_du_lich/models/vung.dart';
 import 'package:app_du_lich/pages/place_name.dart';
 import 'package:flutter/material.dart';
 
-class ResultPlaceName extends StatefulWidget {
-  final Mien mien;
-  const ResultPlaceName({Key? key, required this.mien}) : super(key: key);
+class ResultPlaceName_Region extends StatefulWidget {
+  final Vung vung;
+  const ResultPlaceName_Region({Key? key, required this.vung})
+      : super(key: key);
 
   @override
-  _ResultPlaceNameState createState() => _ResultPlaceNameState();
+  _ResultPlaceName_RegionState createState() => _ResultPlaceName_RegionState();
 }
 
-class _ResultPlaceNameState extends State<ResultPlaceName> {
+class _ResultPlaceName_RegionState extends State<ResultPlaceName_Region> {
   Iterable dsDiaDanh = [];
 
-  Future<void> layDsDiaDanhTheoMien(int mien_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-dia-danh-mien/$mien_id")
+  Future<void> layDsDiaDanhTheoVung(int vung_id) async {
+    await API(url: "http://10.0.2.2:8000/ds-dia-danh-vung/$vung_id")
         .getDataString()
         .then((value) => dsDiaDanh = json.decode(value));
     setState(() {});
@@ -28,14 +29,14 @@ class _ResultPlaceNameState extends State<ResultPlaceName> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    layDsDiaDanhTheoMien(widget.mien.id);
+    layDsDiaDanhTheoVung(widget.vung.id);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.mien.ten_mien),
+        title: Text(widget.vung.ten_vung),
       ),
       body: Container(
           margin: const EdgeInsets.all(10),
