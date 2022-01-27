@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'dart:convert';
 import 'package:app_du_lich/api.dart';
+import 'package:flutter/services.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -17,9 +18,7 @@ class _SignUpState extends State<SignUp> {
   late TextEditingController _fullname;
   late TextEditingController _email;
   late TextEditingController _phone_number;
-
-  bool isEmail = true;
-  bool isPhone_Number = true;
+  bool submitted = false;
 
   Iterable s = [];
 
@@ -31,10 +30,12 @@ class _SignUpState extends State<SignUp> {
         .getDataString()
         .then((value) {
       s = json.decode(value);
-      if (s.elementAt(0)["state"] == "true")
-        showAlertDialog(context, s.elementAt(0)["message"]);
-      else
-        showAlertDialog(context, s.elementAt(0)["message"]);
+      if (s.elementAt(0)["state"] == "true") {
+        showAlertDialog(
+            context, s.elementAt(0)["state"], s.elementAt(0)["message"]);
+      } else
+        showAlertDialog(
+            context, s.elementAt(0)["state"], s.elementAt(0)["message"]);
     });
   }
 
@@ -60,6 +61,79 @@ class _SignUpState extends State<SignUp> {
     _fullname.dispose();
     _email.dispose();
     _phone_number.dispose();
+  }
+
+  void _submit() {
+    setState(() {
+      submitted = true;
+    });
+    if (errorTextFullname == null &&
+        errorTextEmail == null &&
+        errorTextPhoneNumber == null &&
+        errorTextUsername == null &&
+        errorTextPassword == null &&
+        errorTextCFPassword == null) {
+      dangKy(_username.text, _password.text, _cf_password.text, _fullname.text,
+          _email.text, _phone_number.text);
+    }
+  }
+
+  String? get errorTextFullname {
+    final text = _fullname.value.text;
+
+    if (text.isEmpty) return 'Họ tên không được để trống.';
+
+    return null;
+  }
+
+  String? get errorTextEmail {
+    String pattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
+    RegExp regex = RegExp(pattern);
+    final text = _email.value.text;
+
+    if (text.isEmpty) return 'Email không được để trống.';
+    if (!regex.hasMatch(text)) return 'Email không đúng định dạng.';
+
+    return null;
+  }
+
+  String? get errorTextPhoneNumber {
+    String pattern = r'(84|0[3|5|7|8|9])+([0-9]{8})\b';
+    RegExp regex = RegExp(pattern);
+    final text = _phone_number.value.text;
+
+    if (text.isEmpty) return 'Số điện thoại không được để trống.';
+
+    if (!regex.hasMatch(text)) return 'Số điện thoại không đúng định dạng.';
+
+    return null;
+  }
+
+  String? get errorTextPassword {
+    final text = _password.value.text;
+
+    if (text.isEmpty) return 'Mật khẩu không được để trống.';
+    if (text.length < 6) return 'Mật khẩu phải có từ 6 kí tự trở lên.';
+
+    return null;
+  }
+
+  String? get errorTextCFPassword {
+    final text = _cf_password.value.text;
+
+    if (text.isEmpty) return 'Xác nhận mật khẩu không được để trống.';
+    if (text.length < 6) return 'Xác nhận mật khẩu phải có từ 6 kí tự trở lên.';
+
+    return null;
+  }
+
+  String? get errorTextUsername {
+    final text = _username.value.text;
+
+    if (text.isEmpty) return 'Tên đăng nhập không được để trống.';
+    if (text.length < 7) return 'Tên đăng nhập phải từ 7 kí tự.';
+
+    return null;
   }
 
   @override
@@ -97,57 +171,67 @@ class _SignUpState extends State<SignUp> {
                   ),
                   const SizedBox(height: 15),
                   TextField(
+                    onChanged: (_) => setState(() {}),
                     controller: _fullname,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Họ tên',
-                    ),
+                    decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: 'Họ tên',
+                        errorText: submitted ? errorTextFullname : null),
                   ),
                   const SizedBox(height: 15),
                   TextField(
+                    onChanged: (_) => setState(() {}),
                     controller: _email,
                     decoration: InputDecoration(
-                      errorText: isEmail ? null : 'Email không đúng định dạng.',
+                      errorText: submitted ? errorTextEmail : null,
                       border: const OutlineInputBorder(),
                       labelText: 'Email',
                     ),
                   ),
                   const SizedBox(height: 15),
                   TextField(
+                    onChanged: (_) => setState(() {}),
                     controller: _phone_number,
-                    decoration: const InputDecoration(
-                      // errorText: isPhone_Number
-                      //     ? null
-                      //     : 'Số điện thoại không đúng định dạng.',
-                      border: OutlineInputBorder(),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      // FilteringTextInputFormatter.allow(RegExp('[0-9]'))
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
                       labelText: 'Số điện thoại',
+                      errorText: submitted ? errorTextPhoneNumber : null,
                     ),
                   ),
                   const SizedBox(height: 15),
                   TextField(
+                    onChanged: (_) => setState(() {}),
                     controller: _username,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
                       labelText: 'Tên đăng nhập',
+                      errorText: submitted ? errorTextUsername : null,
                     ),
                   ),
                   const SizedBox(height: 20),
                   TextField(
+                    onChanged: (_) => setState(() {}),
                     controller: _password,
                     obscureText: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Mật khẩu',
-                    ),
+                    decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: 'Mật khẩu',
+                        errorText: submitted ? errorTextPassword : null),
                   ),
                   const SizedBox(height: 20),
                   TextField(
+                    onChanged: (_) => setState(() {}),
                     controller: _cf_password,
                     obscureText: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Xác nhận mật khẩu',
-                    ),
+                    decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: 'Xác nhận mật khẩu',
+                        errorText: submitted ? errorTextCFPassword : null),
                   ),
                   const SizedBox(height: 30),
                   ElevatedButton(
@@ -156,34 +240,7 @@ class _SignUpState extends State<SignUp> {
                       maximumSize: const Size(135, 50),
                     ),
                     onPressed: () {
-                      if (_username.text != "" &&
-                          _password.text != "" &&
-                          _cf_password.text != "" &&
-                          _fullname.text != "" &&
-                          _email.text != "" &&
-                          _phone_number.text != "") {
-                        setState(() {
-                          !_email.text.contains("@")
-                              ? isEmail = false
-                              : isEmail = true;
-
-                          // !_phone_number.text.contains("0") &&
-                          //         _phone_number.text.length != 10
-                          //     ? isPhone_Number = false
-                          //     : isPhone_Number = true;
-                        });
-                        if (_email.text.contains("@")) {
-                          dangKy(
-                              _username.text,
-                              _password.text,
-                              _cf_password.text,
-                              _fullname.text,
-                              _email.text,
-                              _phone_number.text);
-                        }
-                      } else
-                        showAlertDialog(
-                            context, "Vui lòng nhập đầy đủ thông tin.");
+                      _submit();
                     },
                     child: const Text(
                       'Đăng ký',
@@ -202,11 +259,15 @@ class _SignUpState extends State<SignUp> {
   }
 }
 
-showAlertDialog(BuildContext context, String message) {
+showAlertDialog(BuildContext context, String state, String message) {
   Widget okButton = TextButton(
     child: const Text("OK"),
     onPressed: () {
-      Navigator.pop(context);
+      if (state == "true") {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      } else
+        Navigator.pop(context);
     },
   );
 

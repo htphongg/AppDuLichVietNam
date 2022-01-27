@@ -23,6 +23,9 @@ class _DetailsAccountState extends State<DetailsAccount> {
   late double profileHeight = 144;
   late double top = coverHeight - profileHeight / 2;
   late User tTinUser;
+  String sessionId = "";
+  late bool state_email;
+  late bool state_phonenumber;
 
   Iterable dsBaiViet = [];
 
@@ -30,7 +33,19 @@ class _DetailsAccountState extends State<DetailsAccount> {
     await API(url: "http://10.0.2.2:8000/thong-tin-ng-dung/$_user_id")
         .getDataString()
         .then((value) => tTinUser = User.fromJson(json.decode(value)));
+    if (tTinUser.state_email == 1) state_email = true;
+    if (tTinUser.state_phonenumber == 1) state_phonenumber = true;
     setState(() {});
+  }
+
+  Future<void> updateStateEmail(String _user_id) async {
+    await API(url: "http://10.0.2.2:8000/up-state-email/$_user_id")
+        .getDataString();
+  }
+
+  Future<void> updateStateSdt(String _user_id) async {
+    await API(url: "http://10.0.2.2:8000/up-state-phonenumber/$_user_id")
+        .getDataString();
   }
 
   Future<void> layDsBaiViet(String _user_id) async {
@@ -45,6 +60,11 @@ class _DetailsAccountState extends State<DetailsAccount> {
     await layDsBaiViet(widget.user_id);
   }
 
+  getSessionId() async {
+    dynamic response = await FlutterSession().get("userId");
+    sessionId = response.toString();
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -56,8 +76,12 @@ class _DetailsAccountState extends State<DetailsAccount> {
         password: "",
         fullname: "",
         email: "",
+        state_email: -1,
         phonenumber: "",
-        display_state: "");
+        state_phonenumber: -1);
+    state_email = false;
+    state_phonenumber = false;
+    getSessionId();
     layThongTinNgDung(widget.user_id);
     layDsBaiViet(widget.user_id);
   }
@@ -75,19 +99,22 @@ class _DetailsAccountState extends State<DetailsAccount> {
           ),
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 26),
-              child: IconButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (builder) => Informaition()));
-                },
-                icon: const Icon(
-                  FontAwesomeIcons.pen,
-                  color: Colors.black,
-                  size: 20,
-                ),
-              ),
-            ),
+                padding: const EdgeInsets.only(right: 26),
+                child: tTinUser.id.toString() == sessionId
+                    ? IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (builder) => Informaition()));
+                        },
+                        icon: const Icon(
+                          FontAwesomeIcons.pen,
+                          color: Colors.black,
+                          size: 20,
+                        ),
+                      )
+                    : null),
           ],
           backgroundColor: Colors.blue.shade300,
         ),
@@ -100,30 +127,121 @@ class _DetailsAccountState extends State<DetailsAccount> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Thông tin liên hệ:',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            tTinUser.state_email != 1 &&
+                                    tTinUser.state_phonenumber != 1 &&
+                                    tTinUser.id.toString() == sessionId
+                                ? 'Thông tin liên hệ'
+                                : tTinUser.state_email != 1 &&
+                                        tTinUser.state_phonenumber != 1
+                                    ? ''
+                                    : 'Thông tin liên hệ:',
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            tTinUser.id.toString() == sessionId
+                                ? 'Công khai'
+                                : '',
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                      tTinUser.state_phonenumber != 1 &&
+                              tTinUser.id.toString() == sessionId
+                          ? ListTile(
+                              leading: const Icon(Icons.phone,
+                                  size: 30, color: Colors.green),
+                              title: Text(tTinUser.phonenumber,
+                                  style: const TextStyle(fontSize: 18)),
+                              trailing: tTinUser.id.toString() == sessionId
+                                  ? Switch.adaptive(
+                                      value: state_phonenumber,
+                                      onChanged: (value) {
+                                        updateStateSdt(tTinUser.id.toString());
+                                        setState(() {
+                                          state_phonenumber = value;
+                                        });
+                                      },
+                                    )
+                                  : null)
+                          : tTinUser.state_phonenumber == 1
+                              ? ListTile(
+                                  leading: const Icon(Icons.phone,
+                                      size: 30, color: Colors.green),
+                                  title: Text(tTinUser.phonenumber,
+                                      style: const TextStyle(fontSize: 18)),
+                                  trailing: tTinUser.id.toString() == sessionId
+                                      ? Switch.adaptive(
+                                          value: state_phonenumber,
+                                          onChanged: (value) {
+                                            updateStateSdt(
+                                                tTinUser.id.toString());
+                                            setState(() {
+                                              state_phonenumber = value;
+                                            });
+                                          },
+                                        )
+                                      : null)
+                              : const SizedBox(),
+                      tTinUser.state_email != 1 &&
+                              tTinUser.id.toString() == sessionId
+                          ? ListTile(
+                              leading: const Icon(Icons.email,
+                                  size: 30, color: Colors.red),
+                              title: Text(tTinUser.email,
+                                  style: const TextStyle(fontSize: 18)),
+                              trailing: tTinUser.id.toString() == sessionId
+                                  ? Switch.adaptive(
+                                      value: state_email,
+                                      onChanged: (value) {
+                                        updateStateEmail(
+                                            tTinUser.id.toString());
+                                        setState(() {
+                                          state_email = value;
+                                        });
+                                      },
+                                    )
+                                  : null)
+                          : tTinUser.state_email == 1
+                              ? ListTile(
+                                  leading: const Icon(Icons.email,
+                                      size: 30, color: Colors.red),
+                                  title: Text(tTinUser.email,
+                                      style: const TextStyle(fontSize: 18)),
+                                  trailing: tTinUser.id.toString() == sessionId
+                                      ? Switch.adaptive(
+                                          value: state_email,
+                                          onChanged: (value) {
+                                            updateStateEmail(
+                                                tTinUser.id.toString());
+                                            setState(() {
+                                              state_email = value;
+                                            });
+                                          },
+                                        )
+                                      : null)
+                              : const SizedBox(),
+                    ],
                   ),
-                  ListTile(
-                    leading:
-                        const Icon(Icons.phone, size: 30, color: Colors.green),
-                    title: Text(tTinUser.phonenumber,
-                        style: const TextStyle(fontSize: 18)),
-                  ),
-                  ListTile(
-                    leading:
-                        const Icon(Icons.email, size: 30, color: Colors.red),
-                    title: Text(tTinUser.email,
-                        style: const TextStyle(fontSize: 18)),
-                  ),
-                  const Text(
-                    'Bài viết:',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  dsBaiViet.length > 0
+                      ? const Text(
+                          'Bài viết:',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        )
+                      : const SizedBox()
                 ],
               ),
-              ...(dsBaiViet.map(
-                  (baiviet) => ReView(baiViet: BaiViet.fromJson(baiviet)))),
+              ...(dsBaiViet
+                  .map((baiviet) => ReView(baiViet: BaiViet.fromJson(baiviet))))
             ],
           ),
         ),
@@ -137,7 +255,7 @@ class _DetailsAccountState extends State<DetailsAccount> {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 10),
             child: Text(
               tTinUser.fullname,
               style: const TextStyle(
@@ -145,10 +263,6 @@ class _DetailsAccountState extends State<DetailsAccount> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-          const Text(
-            'Đi đến những nơi thật đẹp',
-            style: TextStyle(fontSize: 16, height: 1.4),
           ),
           const SizedBox(height: 26),
         ],

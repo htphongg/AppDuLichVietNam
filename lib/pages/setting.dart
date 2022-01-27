@@ -36,14 +36,15 @@ class _SettingState extends State<Setting> {
     // TODO: implement initState
     super.initState();
     tTinUser = User(
-        id: 0,
+        id: -1,
         avt: "",
         username: "",
         password: "",
         fullname: "",
         email: "",
+        state_email: -1,
         phonenumber: "",
-        display_state: "");
+        state_phonenumber: -1);
     layThongTinNgDung();
   }
 

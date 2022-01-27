@@ -54,8 +54,9 @@ class _ReViewState extends State<ReView> {
         password: "",
         fullname: "",
         email: "",
+        state_email: -1,
         phonenumber: "",
-        display_state: "");
+        state_phonenumber: -1);
     layThongTinNguoiViet(widget.baiViet.nguoi_dung_id);
     layDsHinhAnh(widget.baiViet.id);
   }

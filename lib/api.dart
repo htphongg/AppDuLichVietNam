@@ -6,7 +6,7 @@ class API {
 
   Future<String> getDataString() async {
     final respone = await http.get(Uri.parse(url));
-    if (respone.statusCode == 200 && respone.body.isNotEmpty) {
+    if (respone.statusCode == 200) {
       return respone.body;
     } else {
       throw Exception('Failed');

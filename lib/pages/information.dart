@@ -67,8 +67,9 @@ class _InformaitionState extends State<Informaition> {
         password: "",
         fullname: "",
         email: "",
+        state_email: -1,
         phonenumber: "",
-        display_state: "");
+        state_phonenumber: -1);
 
     layThongTinNgDung();
   }
