@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _user_id = "";
+  String _user_id = '';
 
   Future<void> getSession() async {
     dynamic response = await FlutterSession().get("userId");
@@ -38,6 +38,6 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: _user_id != '' ? MainScreen() : const Login());
+        home: _user_id == 'null' ? const Login() : MainScreen());
   }
 }

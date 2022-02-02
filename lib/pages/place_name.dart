@@ -20,7 +20,7 @@ import 'package:app_du_lich/pages/details_hotel.dart';
 import 'package:app_du_lich/models/bai_viet.dart';
 
 class PlaceName extends StatefulWidget {
-  late DiaDanh diaDanh;
+  DiaDanh diaDanh;
 
   PlaceName({Key? key, required this.diaDanh}) : super(key: key);
 
@@ -102,9 +102,10 @@ class _PlaceNameState extends State<PlaceName> {
         .getDataString()
         .then((value) => resultLikeState = json.decode(value));
 
-    if (resultLikeState.elementAt(0)["state"] == "true")
+    if (resultLikeState.elementAt(0)["state"] == "true") {
       liked = true;
-    else
+      widget.diaDanh.luot_thich -= 1;
+    } else
       liked = false;
     setState(() {});
   }
@@ -115,6 +116,11 @@ class _PlaceNameState extends State<PlaceName> {
       coords: Coords(diaDanh.kinh_do, diaDanh.vi_do),
       title: diaDanh.ten_dia_danh,
     );
+  }
+
+  Future<void> refesh() async {
+    // await trangThaiThich(widget.diaDanh.id);
+    await layDsBaiViet(widget.diaDanh.id);
   }
 
   @override
@@ -140,289 +146,286 @@ class _PlaceNameState extends State<PlaceName> {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(title: Text(widget.diaDanh.ten_dia_danh)),
-      body: ListView(
-        children: [
-          Column(
-            children: [
-              dsHinhAnh.length > 0
-                  ? Container(
-                      child: CarouselSlider.builder(
-                        carouselController: _controller,
-                        itemCount: dsHinhAnh.length,
-                        itemBuilder: (context, index, readIndex) {
-                          final image_path = dsHinhAnh.elementAt(index)["path"];
-                          return Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: Image.network('$image_path'),
-                          );
-                        },
-                        options: CarouselOptions(
-                          autoPlay: true,
-                          initialPage: 0,
-                          height: 200,
-                          viewportFraction: 1,
-                          enableInfiniteScroll: false,
-                          autoPlayInterval: const Duration(seconds: 3),
-                          onPageChanged: (index, reason) {
-                            setState(() {
-                              activeIndex = index;
-                            });
-                          },
-                        ),
-                      ),
-                    )
-                  : const Center(child: CircularProgressIndicator()),
-              const SizedBox(height: 8),
-              _buildIndicator(),
-            ],
-          ),
-          const SizedBox(height: 15),
-          Container(
-            margin: const EdgeInsets.only(left: 15, right: 15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: RefreshIndicator(
+        onRefresh: refesh,
+        child: ListView(
+          children: [
+            Column(
               children: [
-                Center(
-                  child: Text(
-                    widget.diaDanh.ten_dia_danh,
-                    style: const TextStyle(
-                        fontSize: 25, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                ListTile(
-                  title: Text(
-                      widget.diaDanh.luot_checkin.toString() +
-                          " người đã Checkin tại đây.",
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold)),
-                  trailing: TextButton(
-                    onPressed: () {},
-                    child: Text('Checkin ngay',
-                        style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange.shade900)),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                resultLikeState.length > 0
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          liked
-                              ? SizedBox(
-                                  width: 200,
-                                  child: Text(
-                                    "Bạn và " +
-                                        widget.diaDanh.luot_thich.toString() +
-                                        " người khác thích địa điểm này.",
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                )
-                              : Text(
-                                  widget.diaDanh.luot_thich.toString() +
-                                      " người thích địa điểm này.",
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                                primary: Colors.grey.shade300),
-                            onPressed: () {
-                              liked
-                                  ? unlike(widget.diaDanh.id)
-                                  : like(widget.diaDanh.id);
+                dsHinhAnh.length > 0
+                    ? Container(
+                        child: CarouselSlider.builder(
+                          carouselController: _controller,
+                          itemCount: dsHinhAnh.length,
+                          itemBuilder: (context, index, readIndex) {
+                            final image_path =
+                                dsHinhAnh.elementAt(index)["path"];
+                            return Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Image.network('$image_path'),
+                            );
+                          },
+                          options: CarouselOptions(
+                            autoPlay: true,
+                            initialPage: 0,
+                            height: 200,
+                            viewportFraction: 1,
+                            enableInfiniteScroll: false,
+                            autoPlayInterval: const Duration(seconds: 3),
+                            onPageChanged: (index, reason) {
                               setState(() {
-                                liked ? liked = false : liked = true;
+                                activeIndex = index;
                               });
                             },
-                            icon: liked
-                                ? const Icon(
-                                    Icons.thumb_up_outlined,
-                                    size: 30,
-                                    color: Colors.blue,
-                                  )
-                                : const Icon(Icons.thumb_up_outlined,
-                                    size: 30, color: Colors.black),
-                            label: liked
-                                ? const Text('Đã thích',
-                                    style: TextStyle(
-                                        fontSize: 20, color: Colors.blue))
-                                : const Text('Thích',
-                                    style: TextStyle(
-                                        fontSize: 20, color: Colors.black)),
-                          )
-                        ],
-                      )
-                    : const SizedBox(),
-                Container(
-                  child: TextButton(
-                    child: const Text(
-                      'Xem trên bản đồ',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    onPressed: () {
-                      openMap(widget.diaDanh);
-                    },
-                  ),
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Text(
-                    '4.9',
-                    style: TextStyle(fontSize: 50),
-                  ),
-                  title: Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.yellow.shade700),
-                      Icon(Icons.star, color: Colors.yellow.shade700),
-                      Icon(Icons.star, color: Colors.yellow.shade700),
-                      Icon(Icons.star, color: Colors.yellow.shade700),
-                      Icon(Icons.star, color: Colors.yellow.shade700)
-                    ],
-                  ),
-                  subtitle: const Text('14 đánh giá'),
-                ),
-                const Divider(),
-                const Text(
-                  'Mô tả:',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const Divider(),
-                Text(widget.diaDanh.mo_ta,
-                    style: const TextStyle(fontSize: 20)),
-                const SizedBox(height: 10),
-                const Divider(),
-                Row(
-                  children: const [
-                    Text(
-                      'Các món đặc sản:',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                dsMonAn.length > 0
-                    ? Container(
-                        height: 200,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            ...(dsMonAn.map((monan) {
-                              return _buildMonAn(
-                                  context, MonAn.fromJson(monan));
-                            }))
-                          ],
+                          ),
                         ),
                       )
-                    : const Center(
-                        child:
-                            Text('Không tìm thấy món ăn đặc sản nào ở đây.')),
-                const Divider(),
-                Row(
-                  children: const [
-                    Text(
-                      'Quán ăn gần đây:',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    : const Center(child: CircularProgressIndicator()),
+                const SizedBox(height: 8),
+                _buildIndicator(),
+              ],
+            ),
+            const SizedBox(height: 15),
+            Container(
+              margin: const EdgeInsets.only(left: 15, right: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Text(
+                      widget.diaDanh.ten_dia_danh,
+                      style: const TextStyle(
+                          fontSize: 25, fontWeight: FontWeight.bold),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                dsQuanAn.length > 0
-                    ? Container(
-                        height: 200,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            ...(dsQuanAn.map((quanan) {
-                              return _buildQuanAn(
-                                  context, QuanAn.fromJson(quanan));
-                            }))
-                          ],
-                        ),
-                      )
-                    : const Center(
-                        child: Text('Không tìm thấy quán ăn nào gần đây.')),
-                const Divider(),
-                Row(
-                  children: const [
-                    Text(
-                      'Khách sạn gần đây:',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                dsNhaTro.length > 0
-                    ? Container(
-                        height: 200,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            ...(dsNhaTro.map((nhatro) {
-                              return _buildNhaTro(
-                                  context, NhaTro.fromJson(nhatro));
-                            }))
-                          ],
-                        ),
-                      )
-                    : const Center(
-                        child: Text('Không tìm thấy khách sạn nào gần đây.')),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Icon(FontAwesomeIcons.award),
-                    const SizedBox(width: 5),
-                    const Text(
-                      'Đánh giá',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(width: 75),
-                    ElevatedButton(
+                  ),
+                  const SizedBox(height: 25),
+                  ListTile(
+                    title: Text(
+                        widget.diaDanh.luot_checkin.toString() +
+                            " người đã Checkin tại đây.",
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.bold)),
+                    trailing: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           primary: Colors.orange.shade900),
                       onPressed: () {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (builder) => const WirteReviewPost()));
+                                builder: (builder) => WirteReviewPost(
+                                    diaDanhId: widget.diaDanh.id)));
                       },
                       child: const Text(
                         'Viết bài đánh giá',
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.bold),
                       ),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 10),
-                dsBaiViet.length > 0
-                    ? Column(
-                        children: [
-                          ...(dsBaiViet.map((baiviet) =>
-                              ReView(baiViet: BaiViet.fromJson(baiviet))))
-                        ],
-                      )
-                    : const Center(
-                        child: Text('Chưa có bài đánh giá nào.',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold))),
-                const SizedBox(height: 30),
-              ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  resultLikeState.length > 0
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            liked
+                                ? SizedBox(
+                                    width: 200,
+                                    child: Text(
+                                      "Bạn và " +
+                                          widget.diaDanh.luot_thich.toString() +
+                                          " người khác thích địa điểm này.",
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  )
+                                : Text(
+                                    widget.diaDanh.luot_thich.toString() +
+                                        " người thích địa điểm này.",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                  primary: Colors.grey.shade300),
+                              onPressed: () {
+                                liked
+                                    ? unlike(widget.diaDanh.id)
+                                    : like(widget.diaDanh.id);
+                                setState(() {
+                                  liked ? liked = false : liked = true;
+                                });
+                              },
+                              icon: liked
+                                  ? const Icon(
+                                      Icons.thumb_up_outlined,
+                                      size: 30,
+                                      color: Colors.blue,
+                                    )
+                                  : const Icon(Icons.thumb_up_outlined,
+                                      size: 30, color: Colors.black),
+                              label: liked
+                                  ? const Text('Đã thích',
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.blue))
+                                  : const Text('Thích',
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.black)),
+                            )
+                          ],
+                        )
+                      : const SizedBox(),
+                  Container(
+                    child: TextButton(
+                      child: const Text(
+                        'Xem trên bản đồ',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      onPressed: () {
+                        openMap(widget.diaDanh);
+                      },
+                    ),
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Text(
+                      '5.0',
+                      style: TextStyle(fontSize: 50),
+                    ),
+                    title: Row(
+                      children: [
+                        Icon(Icons.star, color: Colors.yellow.shade700),
+                        Icon(Icons.star, color: Colors.yellow.shade700),
+                        Icon(Icons.star, color: Colors.yellow.shade700),
+                        Icon(Icons.star, color: Colors.yellow.shade700),
+                        Icon(Icons.star, color: Colors.yellow.shade700)
+                      ],
+                    ),
+                    subtitle: Text(dsBaiViet.length.toString() + ' đánh giá'),
+                  ),
+                  const Divider(),
+                  const Text(
+                    'Mô tả:',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const Divider(),
+                  Text(widget.diaDanh.mo_ta,
+                      style: const TextStyle(fontSize: 20)),
+                  const SizedBox(height: 10),
+                  const Divider(),
+                  Row(
+                    children: const [
+                      Text(
+                        'Các món đặc sản:',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  dsMonAn.length > 0
+                      ? Container(
+                          height: 200,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              ...(dsMonAn.map((monan) {
+                                return _buildMonAn(
+                                    context, MonAn.fromJson(monan));
+                              }))
+                            ],
+                          ),
+                        )
+                      : const Center(
+                          child:
+                              Text('Không tìm thấy món ăn đặc sản nào ở đây.')),
+                  const Divider(),
+                  Row(
+                    children: const [
+                      Text(
+                        'Quán ăn gần đây:',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  dsQuanAn.length > 0
+                      ? Container(
+                          height: 200,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              ...(dsQuanAn.map((quanan) {
+                                return _buildQuanAn(
+                                    context, QuanAn.fromJson(quanan));
+                              }))
+                            ],
+                          ),
+                        )
+                      : const Center(
+                          child: Text('Không tìm thấy quán ăn nào gần đây.')),
+                  const Divider(),
+                  Row(
+                    children: const [
+                      Text(
+                        'Khách sạn gần đây:',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  dsNhaTro.length > 0
+                      ? Container(
+                          height: 200,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              ...(dsNhaTro.map((nhatro) {
+                                return _buildNhaTro(
+                                    context, NhaTro.fromJson(nhatro));
+                              }))
+                            ],
+                          ),
+                        )
+                      : const Center(
+                          child: Text('Không tìm thấy khách sạn nào gần đây.')),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: const [
+                      Icon(FontAwesomeIcons.award),
+                      SizedBox(width: 5),
+                      Text(
+                        'Đánh giá',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  dsBaiViet.length > 0
+                      ? Column(
+                          children: [
+                            ...(dsBaiViet.map((baiviet) =>
+                                ReView(baiViet: BaiViet.fromJson(baiviet))))
+                          ],
+                        )
+                      : const Center(
+                          child: Text('Chưa có bài đánh giá nào.',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold))),
+                  const SizedBox(height: 30),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

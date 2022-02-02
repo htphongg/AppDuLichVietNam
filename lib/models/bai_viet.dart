@@ -5,7 +5,7 @@ class BaiViet {
   final DateTime ngay_dang;
   final int dia_danh_id;
   final int nguoi_dung_id;
-  final String luot_thich;
+  String luot_thich;
 
   BaiViet({
     required this.id,

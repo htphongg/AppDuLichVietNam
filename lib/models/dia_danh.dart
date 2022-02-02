@@ -4,7 +4,7 @@ class DiaDanh {
   final String ten_dia_danh;
   final String mo_ta;
   final int luot_checkin;
-  final int luot_thich;
+  int luot_thich;
   final int vung_id;
   final int mien_id;
   final double kinh_do;

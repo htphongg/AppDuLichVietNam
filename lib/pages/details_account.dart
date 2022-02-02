@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:convert';
@@ -162,7 +163,7 @@ class _DetailsAccountState extends State<DetailsAccount> {
                               title: Text(tTinUser.phonenumber,
                                   style: const TextStyle(fontSize: 18)),
                               trailing: tTinUser.id.toString() == sessionId
-                                  ? Switch.adaptive(
+                                  ? CupertinoSwitch(
                                       value: state_phonenumber,
                                       onChanged: (value) {
                                         updateStateSdt(tTinUser.id.toString());
@@ -179,7 +180,7 @@ class _DetailsAccountState extends State<DetailsAccount> {
                                   title: Text(tTinUser.phonenumber,
                                       style: const TextStyle(fontSize: 18)),
                                   trailing: tTinUser.id.toString() == sessionId
-                                      ? Switch.adaptive(
+                                      ? CupertinoSwitch(
                                           value: state_phonenumber,
                                           onChanged: (value) {
                                             updateStateSdt(
@@ -199,7 +200,7 @@ class _DetailsAccountState extends State<DetailsAccount> {
                               title: Text(tTinUser.email,
                                   style: const TextStyle(fontSize: 18)),
                               trailing: tTinUser.id.toString() == sessionId
-                                  ? Switch.adaptive(
+                                  ? CupertinoSwitch(
                                       value: state_email,
                                       onChanged: (value) {
                                         updateStateEmail(
@@ -217,7 +218,7 @@ class _DetailsAccountState extends State<DetailsAccount> {
                                   title: Text(tTinUser.email,
                                       style: const TextStyle(fontSize: 18)),
                                   trailing: tTinUser.id.toString() == sessionId
-                                      ? Switch.adaptive(
+                                      ? CupertinoSwitch(
                                           value: state_email,
                                           onChanged: (value) {
                                             updateStateEmail(
