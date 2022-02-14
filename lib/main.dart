@@ -38,6 +38,8 @@ class _MyAppState extends State<MyApp> {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: _user_id == 'null' ? const Login() : MainScreen());
+        home: _user_id == 'null' || _user_id == ''
+            ? const Login()
+            : MainScreen());
   }
 }

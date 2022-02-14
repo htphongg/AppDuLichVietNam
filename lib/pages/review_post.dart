@@ -98,8 +98,8 @@ class _ReViewState extends State<ReView> {
         .then((value) => resultYeuThich = json.decode(value));
     if (resultYeuThich.elementAt(0)["state"] == "true") {
       post_liked = true;
-      widget.baiViet.luot_thich =
-          (int.parse(widget.baiViet.luot_thich) - 1).toString();
+      // widget.baiViet.luot_thich =
+      //     (int.parse(widget.baiViet.luot_thich) - 1).toString();
     }
     if (!mounted) return;
     setState(() {});
@@ -268,13 +268,12 @@ class _ReViewState extends State<ReView> {
                 post_liked
                     ? Text(
                         "Bạn và " +
-                            widget.baiViet.luot_thich.toString() +
+                            (int.parse(widget.baiViet.luot_thich) - 1)
+                                .toString() +
                             " người khác",
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold))
-                    : Text(
-                        widget.baiViet.luot_thich.toString() +
-                            " lượt yêu thích",
+                    : Text(widget.baiViet.luot_thich + " lượt yêu thích",
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold))
               ],
@@ -330,7 +329,7 @@ class _ReViewState extends State<ReView> {
                                 : post_disliked = true;
                           });
                         },
-                        icon: const Icon(Icons.favorite),
+                        icon: const Icon(Icons.heart_broken_sharp),
                         label: const Text('Không yêu thích'),
                       )
                     : ElevatedButton.icon(
@@ -349,7 +348,7 @@ class _ReViewState extends State<ReView> {
                                 : post_disliked = true;
                           });
                         },
-                        icon: const Icon(Icons.favorite),
+                        icon: const Icon(Icons.heart_broken_sharp),
                         label: const Text('Không yêu thích'),
                       ),
               ],

@@ -40,6 +40,10 @@ class _PlaceNameState extends State<PlaceName> {
   Iterable dsNhaTro = [];
   Iterable dsBaiViet = [];
 
+  void setStateIfMounted(f) {
+    if (mounted) setState(f);
+  }
+
   Future<void> layDsHinhAnh(int dia_danh_id) async {
     await API(url: "http://10.0.2.2:8000/ds-hinh-anh/$dia_danh_id")
         .getDataString()
@@ -107,6 +111,8 @@ class _PlaceNameState extends State<PlaceName> {
       widget.diaDanh.luot_thich -= 1;
     } else
       liked = false;
+
+    if (!mounted) return;
     setState(() {});
   }
 

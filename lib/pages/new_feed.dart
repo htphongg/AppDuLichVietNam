@@ -16,7 +16,7 @@ class _NewFeedState extends State<NewFeed> {
   Iterable dsBaiVietJson = [];
 
   Future<void> layDsBaiViet() async {
-    await API(url: "http://10.0.2.2:8000/ds-bai-viet")
+    await API(url: "http://10.0.2.2:8000/ds-bai-viet-noi-bat")
         .getDataString()
         .then((value) => dsBaiVietJson = json.decode(value));
     setState(() {});
@@ -38,22 +38,26 @@ class _NewFeedState extends State<NewFeed> {
     return RefreshIndicator(
       onRefresh: () => refresh(),
       child: Scaffold(
-        backgroundColor: Colors.indigo.shade50,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text('Bài viết mới nhất'),
-        ),
-        body: Container(
-          margin: const EdgeInsets.all(15),
-          child: ListView.builder(
-            itemCount: dsBaiVietJson.length,
-            itemBuilder: (context, index) {
-              return ReView(
-                  baiViet: BaiViet.fromJson(dsBaiVietJson.elementAt(index)));
-            },
+          backgroundColor: Colors.indigo.shade50,
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: const Text('Bài viết nổi bật'),
           ),
-        ),
-      ),
+          body: dsBaiVietJson.length > 0
+              ? Container(
+                  margin: const EdgeInsets.all(15),
+                  child: ListView.builder(
+                    itemCount: dsBaiVietJson.length,
+                    itemBuilder: (context, index) {
+                      return ReView(
+                          baiViet:
+                              BaiViet.fromJson(dsBaiVietJson.elementAt(index)));
+                    },
+                  ),
+                )
+              : const Center(
+                  child: Text('Chưa có bài viết nổi bật nào.',
+                      style: TextStyle(fontSize: 18)))),
     );
   }
 }
