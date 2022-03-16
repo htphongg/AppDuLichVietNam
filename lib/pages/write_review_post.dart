@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app_du_lich/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_session/flutter_session.dart';
+import 'package:image_picker/image_picker.dart';
 
 class WirteReviewPost extends StatefulWidget {
   int diaDanhId;
@@ -17,23 +21,51 @@ class WirteReviewPost extends StatefulWidget {
 class _WirteReviewPostState extends State<WirteReviewPost> {
   late TextEditingController _tieude;
   late TextEditingController _noidung;
-
-  Iterable resultDangBai = [];
-
-  Future<void> vietBai(int dia_danh_id, String tieude, String noidung) async {
+  Map<String, String> resultDangBai = Map<String, String>();
+  double rating = 0;
+  File? image;
+  // Map<String, String> headers = {
+  //   'Content-Type': 'application/json;charset=UTF-8',
+  //   'Charset': 'utf-8'
+  // };
+  vietBai(
+      int dia_danh_id, String tieude, String noidung, String? filename) async {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
-    await API(
-            url:
-                "http://10.0.2.2:8000/viet-bai/$_user_id/$dia_danh_id/$tieude/$noidung")
-        .getDataString()
-        .then((value) => resultDangBai = json.decode(value));
-    if (resultDangBai.elementAt(0)["state"] == "true")
-      showAlertDialog(context, resultDangBai.elementAt(0)["state"],
-          resultDangBai.elementAt(0)["message"]);
-    else
-      showAlertDialog(context, resultDangBai.elementAt(0)["state"],
-          resultDangBai.elementAt(0)["message"]);
+
+    var request = http.MultipartRequest(
+        "POST", Uri.parse(" https://travellappp.herokuapp.com/api/viet-bai"));
+    if (filename != null) {
+      request.files.add(await http.MultipartFile.fromPath('images', filename));
+    }
+
+    request.fields['tieu_de'] = tieude;
+    request.fields['noi_dung'] = noidung;
+    request.fields['dia_danh_id'] = dia_danh_id.toString();
+    request.fields['user_id'] = _user_id;
+    request.fields['rate'] = rating.toString();
+
+    await request.send().then((response) {
+      if (response.statusCode == 200) {
+        showAlertDialog(context, "true", "Viết bài đánh giá thành công.");
+      } else {
+        showAlertDialog(context, "false", "Viết bài đánh giá thất bại");
+      }
+    });
+  }
+
+  Future pickImage() async {
+    try {
+      final image =
+          await ImagePicker.platform.pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+      final imagePath = File(image.path);
+      setState(() {
+        this.image = imagePath;
+      });
+    } on PlatformException catch (e) {
+      print("Không chọn đƯợc hình ảnh: $e");
+    }
   }
 
   @override
@@ -45,7 +77,7 @@ class _WirteReviewPostState extends State<WirteReviewPost> {
   }
 
   @override
-  void dispose() {
+  voidse() {
     // TODO: implement dispose
     super.dispose();
     _tieude.dispose();
@@ -65,22 +97,35 @@ class _WirteReviewPostState extends State<WirteReviewPost> {
               padding: const EdgeInsets.all(15),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.star, color: Colors.yellow.shade700, size: 40),
-                      Icon(Icons.star, color: Colors.yellow.shade700, size: 40),
-                      Icon(Icons.star, color: Colors.yellow.shade700, size: 40),
-                      Icon(Icons.star, color: Colors.yellow.shade700, size: 40),
-                      Icon(
-                        Icons.star,
-                        color: Colors.yellow.shade700,
-                        size: 40,
-                      )
-                    ],
-                  ),
+                  RatingBar.builder(
+                      minRating: 1,
+                      updateOnDrag: true,
+                      itemBuilder: (context, _) =>
+                          const Icon(Icons.star, color: Colors.amber),
+                      onRatingUpdate: (rating) {
+                        setState(() {
+                          this.rating = rating;
+                        });
+                      }),
+                  const SizedBox(height: 10),
+                  rating == 5
+                      ? const Text('Rất hài lòng',
+                          style: TextStyle(fontSize: 18))
+                      : rating == 4
+                          ? const Text('Hơi hài lòng',
+                              style: TextStyle(fontSize: 18))
+                          : rating == 3
+                              ? const Text('Bình thường',
+                                  style: TextStyle(fontSize: 18))
+                              : rating == 2
+                                  ? const Text('Không hài lòng',
+                                      style: TextStyle(fontSize: 18))
+                                  : rating == 1
+                                      ? const Text('Rất không hài lòng',
+                                          style: TextStyle(fontSize: 18))
+                                      : const Text(''),
                   GestureDetector(
-                    // onTap: () => pickImage(),
+                    onTap: () => pickImage(),
                     child: Container(
                       margin: const EdgeInsets.all(20),
                       width: 200,
@@ -98,12 +143,12 @@ class _WirteReviewPostState extends State<WirteReviewPost> {
                       ),
                     ),
                   ),
-                  // Container(
-                  //   child: images == null
-                  //       ? const Text('Không có hình ảnh nào dc chọn')
-                  //       : Image.file(images!,
-                  //           width: 160, height: 160, fit: BoxFit.cover),
-                  // ),
+                  Container(
+                    child: image == null
+                        ? const Text('Không có hình ảnh nào dc chọn')
+                        : Image.file(image!,
+                            width: 160, height: 160, fit: BoxFit.cover),
+                  ),
                   const SizedBox(height: 25),
                   Container(
                     child: TextFormField(
@@ -122,7 +167,7 @@ class _WirteReviewPostState extends State<WirteReviewPost> {
                     child: TextFormField(
                       controller: _noidung,
                       minLines: 1,
-                      maxLength: 500,
+                      maxLength: 300,
                       maxLines: null,
                       decoration: const InputDecoration(
                         labelText:
@@ -139,11 +184,12 @@ class _WirteReviewPostState extends State<WirteReviewPost> {
                         onPressed: () {
                           if (_tieude.text.isNotEmpty &&
                               _noidung.text.isNotEmpty) {
-                            vietBai(
-                                widget.diaDanhId, _tieude.text, _noidung.text);
-                          } else
+                            vietBai(widget.diaDanhId, _tieude.text,
+                                _noidung.text, image?.path);
+                          } else {
                             showAlertDialog(context, "false",
                                 "Hãy viết cảm nhận của bạn vào ô trống.");
+                          }
                         },
                         child: const Text('Đăng')),
                   )

@@ -27,7 +27,9 @@ class _InformaitionState extends State<Informaition> {
   Future<void> layThongTinNgDung() async {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
-    await API(url: "http://10.0.2.2:8000/thong-tin-ng-dung/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/thong-tin-ng-dung/$_user_id")
         .getDataString()
         .then((value) => tTinUser = User.fromJson(json.decode(value)));
 
@@ -41,7 +43,7 @@ class _InformaitionState extends State<Informaition> {
       int id, String ho_ten, String email, String sdt) async {
     await API(
             url:
-                "http://10.0.2.2:8000/cap-nhat-thong-tin/$id/$ho_ten/$email/$sdt")
+                "https://travellappp.herokuapp.com/cap-nhat-thong-tin/$id/$ho_ten/$email/$sdt")
         .getDataString()
         .then((value) => result = json.decode(value));
 

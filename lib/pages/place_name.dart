@@ -7,6 +7,7 @@ import 'package:app_du_lich/pages/details_restaurant.dart';
 import 'package:app_du_lich/pages/review_post.dart';
 import 'package:app_du_lich/pages/write_review_post.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_session/flutter_session.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart' as intl;
@@ -32,6 +33,8 @@ class _PlaceNameState extends State<PlaceName> {
   final _controller = CarouselController();
   int activeIndex = 0;
   bool liked = false;
+  int rate = 0;
+  double rating = 0;
 
   Iterable resultLikeState = [];
   Iterable dsHinhAnh = [];
@@ -45,39 +48,58 @@ class _PlaceNameState extends State<PlaceName> {
   }
 
   Future<void> layDsHinhAnh(int dia_danh_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-hinh-anh/$dia_danh_id")
+    await API(url: "https://travellappp.herokuapp.com/ds-hinh-anh/$dia_danh_id")
         .getDataString()
         .then((value) {
       dsHinhAnh = json.decode(value);
     });
+    if (!mounted) return;
     setState(() {});
   }
 
   Future<void> layDsMonAn(int dia_danh_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-mon-an-dia-danh/$dia_danh_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/ds-mon-an-dia-danh/$dia_danh_id")
         .getDataString()
         .then((value) => dsMonAn = json.decode(value));
+    if (!mounted) return;
     setState(() {});
   }
 
   Future<void> layDsQuanAn(int dia_danh_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-quan-an-dia-danh/$dia_danh_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/ds-quan-an-dia-danh/$dia_danh_id")
         .getDataString()
         .then((value) => dsQuanAn = json.decode(value));
+    if (!mounted) return;
     setState(() {});
   }
 
   Future<void> layDsNhaTro(int dia_danh_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-nha-tro-dia-danh/$dia_danh_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/ds-nha-tro-dia-danh/$dia_danh_id")
         .getDataString()
         .then((value) => dsNhaTro = json.decode(value));
+    if (!mounted) return;
     setState(() {});
   }
 
   Future<void> layDsBaiViet(int dia_danh_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-bai-viet-dia-danh/$dia_danh_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/ds-bai-viet-dia-danh/$dia_danh_id")
         .getDataString()
         .then((value) => dsBaiViet = json.decode(value));
+    if (dsBaiViet.length > 0) {
+      dsBaiViet.forEach((element) {
+        rate += int.parse(element["rate"].toString());
+      });
+      rating = double.parse((rate / dsBaiViet.length).toStringAsFixed(1));
+    }
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -85,16 +107,23 @@ class _PlaceNameState extends State<PlaceName> {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
 
-    await API(url: "http://10.0.2.2:8000/like/$dia_danh_id/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/like/$dia_danh_id/$_user_id")
         .getDataString();
+    if (!mounted) return;
     setState(() {});
   }
 
   Future<void> unlike(int dia_danh_id) async {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
-    await API(url: "http://10.0.2.2:8000/unlike/$dia_danh_id/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/unlike/$dia_danh_id/$_user_id")
         .getDataString();
+    if (!mounted) return;
+
     setState(() {});
   }
 
@@ -102,7 +131,8 @@ class _PlaceNameState extends State<PlaceName> {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
     await API(
-            url: "http://10.0.2.2:8000/trang-thai-thich/$dia_danh_id/$_user_id")
+            url:
+                "https://travellappp.herokuapp.com/trang-thai-thich/$dia_danh_id/$_user_id")
         .getDataString()
         .then((value) => resultLikeState = json.decode(value));
 
@@ -243,7 +273,7 @@ class _PlaceNameState extends State<PlaceName> {
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           fontWeight: FontWeight.bold),
                                     ),
                                   )
@@ -253,7 +283,7 @@ class _PlaceNameState extends State<PlaceName> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.bold),
                                   ),
                             ElevatedButton.icon(
@@ -270,18 +300,18 @@ class _PlaceNameState extends State<PlaceName> {
                               icon: liked
                                   ? const Icon(
                                       Icons.thumb_up_outlined,
-                                      size: 30,
+                                      size: 25,
                                       color: Colors.blue,
                                     )
                                   : const Icon(Icons.thumb_up_outlined,
-                                      size: 30, color: Colors.black),
+                                      size: 25, color: Colors.black),
                               label: liked
                                   ? const Text('Đã thích',
                                       style: TextStyle(
-                                          fontSize: 20, color: Colors.blue))
+                                          fontSize: 15, color: Colors.blue))
                                   : const Text('Thích',
                                       style: TextStyle(
-                                          fontSize: 20, color: Colors.black)),
+                                          fontSize: 15, color: Colors.black)),
                             )
                           ],
                         )
@@ -299,18 +329,14 @@ class _PlaceNameState extends State<PlaceName> {
                   ),
                   const Divider(),
                   ListTile(
-                    leading: const Text(
-                      '5.0',
-                      style: TextStyle(fontSize: 50),
+                    leading: Text(
+                      rating.toString(),
+                      style: const TextStyle(fontSize: 50),
                     ),
-                    title: Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.yellow.shade700),
-                        Icon(Icons.star, color: Colors.yellow.shade700),
-                        Icon(Icons.star, color: Colors.yellow.shade700),
-                        Icon(Icons.star, color: Colors.yellow.shade700),
-                        Icon(Icons.star, color: Colors.yellow.shade700)
-                      ],
+                    title: RatingBarIndicator(
+                      rating: rating,
+                      itemBuilder: (context, _) =>
+                          const Icon(Icons.star, color: Colors.amber),
                     ),
                     subtitle: Text(dsBaiViet.length.toString() + ' đánh giá'),
                   ),

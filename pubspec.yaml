@@ -42,6 +42,9 @@ dependencies:
   map_launcher: ^2.1.2
   intl: ^0.17.0
   flutter_session: ^0.1.1
+  image_picker: ^0.8.0+4
+  flutter_rating_bar: ^4.0.0
+  readmore: ^2.1.0
 
 dev_dependencies:
   flutter_test:

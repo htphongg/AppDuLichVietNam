@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app_du_lich/api.dart';
+import 'package:app_du_lich/connect.dart';
 import 'package:app_du_lich/models/user.dart';
 import 'package:app_du_lich/pages/login.dart';
 import 'package:flutter/material.dart';
@@ -25,15 +26,16 @@ class _ChangePasswordState extends State<ChangePassword> {
       int user_id, String old_pass, String new_pass, String cf_new_pass) async {
     await API(
             url:
-                "http://10.0.2.2:8000/doi-mat-khau/$user_id/$old_pass/$new_pass/$cf_new_pass")
+                "https://travellappp.herokuapp.com/$user_id/$old_pass/$new_pass/$cf_new_pass")
         .getDataString()
         .then((value) => result = json.decode(value));
     if (result.elementAt(0)["state"] == "true") {
       showAlertDialog(context, result.elementAt(0)["state"],
           result.elementAt(0)["message"]);
-    } else
+    } else {
       showAlertDialog(context, result.elementAt(0)["state"],
           result.elementAt(0)["message"]);
+    }
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:app_du_lich/pages/login.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:convert';
@@ -9,6 +10,7 @@ import 'package:app_du_lich/pages/place_name.dart';
 import 'package:app_du_lich/pages/result_place_name_domain.dart';
 import 'package:app_du_lich/pages/result_place_name_region.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_session/flutter_session.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:app_du_lich/models/hoat_dong.dart';
@@ -37,8 +39,12 @@ class _HomeState extends State<Home> {
     if (mounted) setState(f);
   }
 
+  Future<void> setSession() async {
+    await FlutterSession().set('userId', "");
+  }
+
   Future<void> layDsDiaDanh() async {
-    await API(url: "http://10.0.2.2:8000/ds-dia-danh")
+    await API(url: "https://travellappp.herokuapp.com/ds-dia-danh")
         .getDataString()
         .then((value) {
       dsDiaDanh = json.decode(value);
@@ -48,7 +54,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> layDsDiaDanhHot() async {
-    await API(url: "http://10.0.2.2:8000/ds-dia-danh-hot")
+    await API(url: "https://travellappp.herokuapp.com/ds-dia-danh-hot")
         .getDataString()
         .then((value) {
       dsDiaDanhHot = json.decode(value);
@@ -63,7 +69,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> layDsMien() async {
-    await API(url: "http://10.0.2.2:8000/ds-mien")
+    await API(url: "https://travellappp.herokuapp.com/ds-mien")
         .getDataString()
         .then((value) => dsMien = json.decode(value));
     if (!mounted) return;
@@ -72,7 +78,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> layDsVung() async {
-    await API(url: "http://10.0.2.2:8000/ds-vung")
+    await API(url: "https://travellappp.herokuapp.com/ds-vung")
         .getDataString()
         .then((value) => dsVung = json.decode(value));
     if (!mounted) return;
@@ -80,7 +86,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> layDsHoatDong() async {
-    await API(url: "http://10.0.2.2:8000/ds-hoat-dong")
+    await API(url: "https://travellappp.herokuapp.com/ds-hoat-dong")
         .getDataString()
         .then((value) => dsHoatDong = json.decode(value));
     if (!mounted) return;
@@ -195,7 +201,7 @@ class _HomeState extends State<Home> {
         children: <Widget>[
           Container(
             height: 150,
-            width: 180,
+            width: 170,
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(8),
@@ -215,7 +221,7 @@ class _HomeState extends State<Home> {
           ),
           Container(
             height: 120,
-            width: 180,
+            width: 170,
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(8),
@@ -418,7 +424,7 @@ class _HomeState extends State<Home> {
         ),
         ...(dsHoatDong.map((hoatDong) =>
             _buildHoatDong(context, HoatDong.fromJson(hoatDong)))),
-        const SizedBox(height: 60)
+        const SizedBox(height: 60),
       ],
     );
   }

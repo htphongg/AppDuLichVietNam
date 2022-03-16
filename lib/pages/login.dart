@@ -5,6 +5,7 @@ import 'package:app_du_lich/api.dart';
 import 'package:app_du_lich/pages/main_screen.dart';
 import 'package:app_du_lich/pages/sign_up.dart';
 import 'package:app_du_lich/models/user.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_session/flutter_session.dart';
 
 class Login extends StatefulWidget {
@@ -25,7 +26,9 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> dangNhap(String _username, String _password) async {
-    await API(url: "http://10.0.2.2:8000/login/$_username/$_password")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/login/$_username/$_password")
         .getDataString()
         .then((value) {
       s = json.decode(value);

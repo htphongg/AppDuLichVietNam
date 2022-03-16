@@ -31,7 +31,9 @@ class _DetailsAccountState extends State<DetailsAccount> {
   Iterable dsBaiViet = [];
 
   Future<void> layThongTinNgDung(String _user_id) async {
-    await API(url: "http://10.0.2.2:8000/thong-tin-ng-dung/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/thong-tin-ng-dung/$_user_id")
         .getDataString()
         .then((value) => tTinUser = User.fromJson(json.decode(value)));
     if (tTinUser.state_email == 1) state_email = true;
@@ -40,17 +42,21 @@ class _DetailsAccountState extends State<DetailsAccount> {
   }
 
   Future<void> updateStateEmail(String _user_id) async {
-    await API(url: "http://10.0.2.2:8000/up-state-email/$_user_id")
+    await API(url: "https://travellappp.herokuapp.com/up-state-email/$_user_id")
         .getDataString();
   }
 
   Future<void> updateStateSdt(String _user_id) async {
-    await API(url: "http://10.0.2.2:8000/up-state-phonenumber/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/up-state-phonenumber/$_user_id")
         .getDataString();
   }
 
   Future<void> layDsBaiViet(String _user_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-bai-viet-ng-dung/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/ds-bai-viet-ng-dung/$_user_id")
         .getDataString()
         .then((value) => dsBaiViet = json.decode(value));
     setState(() {});

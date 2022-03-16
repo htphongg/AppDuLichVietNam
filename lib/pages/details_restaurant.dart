@@ -27,14 +27,15 @@ class _DetailsRestaurantState extends State<DetailsRestaurant> {
   Iterable dsMonAn = [];
 
   Future<void> layDsHinhAnhQuanAn(int quan_an_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-anh-quan/$quan_an_id")
+    await API(url: "https://travellappp.herokuapp.com/ds-anh-quan/$quan_an_id")
         .getDataString()
         .then((value) => dsHinhAnh = json.decode(value));
     setState(() {});
   }
 
   Future<void> layDsMonAn(int quan_an_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-mon-an-quan/$quan_an_id")
+    await API(
+            url: "https://travellappp.herokuapp.com/ds-mon-an-quan/$quan_an_id")
         .getDataString()
         .then((value) => dsMonAn = json.decode(value));
     setState(() {});

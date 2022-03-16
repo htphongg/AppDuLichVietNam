@@ -25,7 +25,9 @@ class _SettingState extends State<Setting> {
   Future<void> layThongTinNgDung() async {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
-    await API(url: "http://10.0.2.2:8000/thong-tin-ng-dung/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/thong-tin-ng-dung/$_user_id")
         .getDataString()
         .then((value) => tTinUser = User.fromJson(json.decode(value)));
     setState(() {});

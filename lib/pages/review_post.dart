@@ -7,8 +7,10 @@ import 'package:app_du_lich/api.dart';
 import 'package:app_du_lich/models/anh.dart';
 import 'package:app_du_lich/models/bai_viet.dart';
 import 'package:app_du_lich/models/user.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_session/flutter_session.dart';
 import 'package:intl/intl.dart';
+import 'package:readmore/readmore.dart';
 
 import '../models/dia_danh.dart';
 
@@ -36,7 +38,9 @@ class _ReViewState extends State<ReView> {
   }
 
   Future<void> layThongTinNguoiViet(int user_id) async {
-    await (API(url: "http://10.0.2.2:8000/thong-tin-nguoi-dung/$user_id"))
+    await (API(
+            url:
+                "https://travellappp.herokuapp.com/thong-tin-nguoi-dung/$user_id"))
         .getDataString()
         .then((value) => ngViet = User.fromJson(json.decode(value)));
     if (!mounted) return;
@@ -44,7 +48,7 @@ class _ReViewState extends State<ReView> {
   }
 
   Future<void> layTTinDiaDanh(int dia_danh_id) async {
-    await API(url: "http://10.0.2.2:8000/dia-danh/$dia_danh_id")
+    await API(url: "https://travellappp.herokuapp.com/dia-danh/$dia_danh_id")
         .getDataString()
         .then((value) => diaDanh = DiaDanh.fromJson(json.decode(value)));
     if (!mounted) return;
@@ -52,7 +56,9 @@ class _ReViewState extends State<ReView> {
   }
 
   Future<void> layDsHinhAnh(int bai_viet_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-anh-bai-viet/$bai_viet_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/ds-anh-bai-viet/$bai_viet_id")
         .getDataString()
         .then((value) => dsHinhAnh = json.decode(value));
     if (!mounted) return;
@@ -62,7 +68,9 @@ class _ReViewState extends State<ReView> {
   Future<void> like(int bai_viet_id) async {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
-    await API(url: "http://10.0.2.2:8000/like-bai-viet/$bai_viet_id/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/like-bai-viet/$bai_viet_id/$_user_id")
         .getDataString();
   }
 
@@ -70,21 +78,26 @@ class _ReViewState extends State<ReView> {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
     await API(
-            url: "http://10.0.2.2:8000/unlike-bai-viet/$bai_viet_id/$_user_id")
+            url:
+                "https://travellappp.herokuapp.com/unlike-bai-viet/$bai_viet_id/$_user_id")
         .getDataString();
   }
 
   Future<void> dislike(int bai_viet_id) async {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
-    await API(url: "http://10.0.2.2:8000/dislike/$bai_viet_id/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/dislike/$bai_viet_id/$_user_id")
         .getDataString();
   }
 
   Future<void> undislike(int bai_viet_id) async {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
-    await API(url: "http://10.0.2.2:8000/undislike/$bai_viet_id/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/undislike/$bai_viet_id/$_user_id")
         .getDataString();
   }
 
@@ -93,7 +106,7 @@ class _ReViewState extends State<ReView> {
     String _user_id = response.toString();
     await API(
             url:
-                "http://10.0.2.2:8000/trang-thai-thich-bai-viet/$bai_viet_id/$_user_id")
+                "https://travellappp.herokuapp.com/trang-thai-thich-bai-viet/$bai_viet_id/$_user_id")
         .getDataString()
         .then((value) => resultYeuThich = json.decode(value));
     if (resultYeuThich.elementAt(0)["state"] == "true") {
@@ -110,7 +123,7 @@ class _ReViewState extends State<ReView> {
     String _user_id = response.toString();
     await API(
             url:
-                "http://10.0.2.2:8000/trang-thai-khong-thich-bai-viet/$bai_viet_id/$_user_id")
+                "https://travellappp.herokuapp.com/trang-thai-khong-thich-bai-viet/$bai_viet_id/$_user_id")
         .getDataString()
         .then((value) => resultKhongYeuThich = json.decode(value));
     if (resultKhongYeuThich.elementAt(0)["state"] == "true") {
@@ -207,15 +220,36 @@ class _ReViewState extends State<ReView> {
             padding: const EdgeInsets.only(left: 15),
             child: Row(
               children: [
-                Icon(Icons.star, color: Colors.yellow.shade700),
-                Icon(Icons.star, color: Colors.yellow.shade700),
-                Icon(Icons.star, color: Colors.yellow.shade700),
-                Icon(Icons.star, color: Colors.yellow.shade700),
-                const SizedBox(width: 10),
-                const Text(
-                  'Rất hài lòng',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                RatingBarIndicator(
+                  rating: double.parse(widget.baiViet.rate.toString()),
+                  itemSize: 20,
+                  itemBuilder: (context, _) => const Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                  ),
                 ),
+                const SizedBox(width: 5),
+                int.parse(widget.baiViet.rate.toString()) == 5
+                    ? const Text('Rất hài lòng',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold))
+                    : int.parse(widget.baiViet.rate.toString()) == 4
+                        ? const Text('Hơi hài lòng',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold))
+                        : int.parse(widget.baiViet.rate.toString()) == 3
+                            ? const Text('Bình thường',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold))
+                            : int.parse(widget.baiViet.rate.toString()) == 2
+                                ? const Text('Không hài lòng',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold))
+                                : const Text('Rất không hài lòng',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold))
               ],
             ),
           ),
@@ -230,9 +264,13 @@ class _ReViewState extends State<ReView> {
           ),
           Padding(
             padding: const EdgeInsets.all(15),
-            child: Text(
+            child: ReadMoreText(
               widget.baiViet.noi_dung,
               style: const TextStyle(fontSize: 18),
+              trimCollapsedText: 'Xem thêm',
+              trimExpandedText: 'Thu gọn',
+              trimMode: TrimMode.Length,
+              trimLength: 100,
             ),
           ),
 
@@ -248,7 +286,8 @@ class _ReViewState extends State<ReView> {
                   children: <Widget>[
                     ...(dsHinhAnh.map((hinhAnh) {
                       final anh = Anh.fromJson(hinhAnh);
-                      return Container(
+
+                      return SizedBox(
                         height: 24,
                         child: Image.network(
                           anh.path,
@@ -267,10 +306,7 @@ class _ReViewState extends State<ReView> {
                 const SizedBox(width: 5),
                 post_liked
                     ? Text(
-                        "Bạn và " +
-                            (int.parse(widget.baiViet.luot_thich) - 1)
-                                .toString() +
-                            " người khác",
+                        "Bạn và " + widget.baiViet.luot_thich + " người khác",
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold))
                     : Text(widget.baiViet.luot_thich + " lượt yêu thích",

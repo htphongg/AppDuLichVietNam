@@ -16,7 +16,7 @@ class _NewFeedState extends State<NewFeed> {
   Iterable dsBaiVietJson = [];
 
   Future<void> layDsBaiViet() async {
-    await API(url: "http://10.0.2.2:8000/ds-bai-viet-noi-bat")
+    await API(url: "https://travellappp.herokuapp.com/ds-bai-viet")
         .getDataString()
         .then((value) => dsBaiVietJson = json.decode(value));
     setState(() {});
@@ -55,9 +55,7 @@ class _NewFeedState extends State<NewFeed> {
                     },
                   ),
                 )
-              : const Center(
-                  child: Text('Chưa có bài viết nổi bật nào.',
-                      style: TextStyle(fontSize: 18)))),
+              : const Center(child: CircularProgressIndicator())),
     );
   }
 }

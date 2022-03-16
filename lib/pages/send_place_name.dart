@@ -32,7 +32,7 @@ class _SendPlaceNameState extends State<SendPlaceName> {
   }
 
   Future<void> layDsMien() async {
-    await API(url: "http://10.0.2.2:8000/ds-mien")
+    await API(url: "https://travellappp.herokuapp.com/ds-mien")
         .getDataString()
         .then((value) => dsMien = json.decode(value));
     if (!mounted) return;
@@ -41,7 +41,7 @@ class _SendPlaceNameState extends State<SendPlaceName> {
   }
 
   Future<void> layDsVung() async {
-    await API(url: "http://10.0.2.2:8000/ds-vung")
+    await API(url: "https://travellappp.herokuapp.com/ds-vung")
         .getDataString()
         .then((value) => dsVung = json.decode(value));
     if (!mounted) return;
@@ -49,7 +49,7 @@ class _SendPlaceNameState extends State<SendPlaceName> {
   }
 
   Future<void> layDsHoatDong() async {
-    await API(url: "http://10.0.2.2:8000/ds-hoat-dong")
+    await API(url: "https://travellappp.herokuapp.com/ds-hoat-dong")
         .getDataString()
         .then((value) => dsHoatDong = json.decode(value));
     if (!mounted) return;
@@ -60,7 +60,7 @@ class _SendPlaceNameState extends State<SendPlaceName> {
       tendiadanh, mota, vung, mien, hoatdong, kinhdo, vido) async {
     await API(
             url:
-                "http://10.0.2.2:8000/them-dia-danh-cho/$tendiadanh/$mota/$vung/$mien/$hoatdong/$kinhdo/$vido")
+                "https://travellappp.herokuapp.com/them-dia-danh-cho/$tendiadanh/$mota/$vung/$mien/$hoatdong/$kinhdo/$vido")
         .getDataString()
         .then((value) => resultSendPlaceName = json.decode(value));
     if (resultSendPlaceName.elementAt(0)["state"] == "true") {

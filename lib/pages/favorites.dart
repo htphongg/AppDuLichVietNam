@@ -19,7 +19,9 @@ class _FavoritesState extends State<Favorites> {
   Future<void> layDsDiaDanhDaThich() async {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
-    await API(url: "http://10.0.2.2:8000/lay-ds-dia-danh-da-thich/$_user_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/lay-ds-dia-danh-da-thich/$_user_id")
         .getDataString()
         .then((value) => dsDiaDanhDaThich = json.decode(value));
     setState(() {});
@@ -81,7 +83,7 @@ Widget _buildDiaDanh(BuildContext context, DiaDanh diadanh) {
       children: <Widget>[
         Container(
           height: 150,
-          width: 180,
+          width: 165,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(8),
@@ -101,7 +103,7 @@ Widget _buildDiaDanh(BuildContext context, DiaDanh diadanh) {
         ),
         Container(
           height: 120,
-          width: 180,
+          width: 165,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(8),

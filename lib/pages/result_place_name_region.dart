@@ -19,7 +19,8 @@ class _ResultPlaceName_RegionState extends State<ResultPlaceName_Region> {
   Iterable dsDiaDanh = [];
 
   Future<void> layDsDiaDanhTheoVung(int vung_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-dia-danh-vung/$vung_id")
+    await API(
+            url: "https://travellappp.herokuapp.com/ds-dia-danh-vung/$vung_id")
         .getDataString()
         .then((value) => dsDiaDanh = json.decode(value));
     setState(() {});
@@ -70,7 +71,7 @@ Widget _buildDiaDanh(BuildContext context, DiaDanh diadanh) {
       children: <Widget>[
         Container(
           height: 150,
-          width: 180,
+          width: 165,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(8),
@@ -90,7 +91,7 @@ Widget _buildDiaDanh(BuildContext context, DiaDanh diadanh) {
         ),
         Container(
           height: 120,
-          width: 180,
+          width: 165,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(8),

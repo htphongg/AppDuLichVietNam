@@ -27,7 +27,8 @@ class _DetailsHotelState extends State<DetailsHotel> {
   Iterable dsHinhAnh = [];
 
   Future<void> layDsHinhAnhNhaTro(int nha_tro_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-anh-nha-tro/$nha_tro_id")
+    await API(
+            url: "https://travellappp.herokuapp.com/ds-anh-nha-tro/$nha_tro_id")
         .getDataString()
         .then((value) => dsHinhAnh = json.decode(value));
     setState(() {});

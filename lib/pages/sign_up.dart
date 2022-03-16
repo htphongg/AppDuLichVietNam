@@ -26,7 +26,7 @@ class _SignUpState extends State<SignUp> {
       String _fullname, String _email, String _phone_number) async {
     await API(
             url:
-                "http://10.0.2.2:8000/sign-up/$_username/$_password/$_cf_password/$_fullname/$_email/$_phone_number")
+                "https://travellappp.herokuapp.com/sign-up/$_username/$_password/$_cf_password/$_fullname/$_email/$_phone_number")
         .getDataString()
         .then((value) {
       s = json.decode(value);
