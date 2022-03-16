@@ -1,9 +1,19 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'dart:convert';
+import 'package:app_du_lich/api.dart';
+import 'package:app_du_lich/models/bai_viet.dart';
+import 'package:app_du_lich/models/user.dart';
+import 'package:app_du_lich/pages/review_post.dart';
+import 'package:flutter_session/flutter_session.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:app_du_lich/pages/information.dart';
 
 class DetailsAccount extends StatefulWidget {
-  const DetailsAccount({Key? key}) : super(key: key);
+  String user_id;
+
+  DetailsAccount({Key? key, required this.user_id}) : super(key: key);
 
   @override
   _DetailsAccountState createState() => _DetailsAccountState();
@@ -13,63 +23,237 @@ class _DetailsAccountState extends State<DetailsAccount> {
   late double coverHeight = 280;
   late double profileHeight = 144;
   late double top = coverHeight - profileHeight / 2;
+  late User tTinUser;
+  String sessionId = "";
+  late bool state_email;
+  late bool state_phonenumber;
+
+  Iterable dsBaiViet = [];
+
+  Future<void> layThongTinNgDung(String _user_id) async {
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/thong-tin-ng-dung/$_user_id")
+        .getDataString()
+        .then((value) => tTinUser = User.fromJson(json.decode(value)));
+    setState(() {});
+    if (tTinUser.state_email.toString() == "true") state_email = true;
+    if (tTinUser.state_phonenumber.toString() == "true") {
+      state_phonenumber = true;
+    }
+  }
+
+  Future<void> updateStateEmail(String _user_id) async {
+    await API(url: "https://travellappp.herokuapp.com/up-state-email/$_user_id")
+        .getDataString();
+  }
+
+  Future<void> updateStateSdt(String _user_id) async {
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/up-state-phonenumber/$_user_id")
+        .getDataString();
+  }
+
+  Future<void> layDsBaiViet(String _user_id) async {
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/ds-bai-viet-ng-dung/$_user_id")
+        .getDataString()
+        .then((value) => dsBaiViet = json.decode(value));
+    setState(() {});
+  }
+
+  Future<void> refresh() async {
+    await layThongTinNgDung(widget.user_id);
+    await layDsBaiViet(widget.user_id);
+  }
+
+  getSessionId() async {
+    dynamic response = await FlutterSession().get("userId");
+    sessionId = response.toString();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    tTinUser = User(
+        id: 0,
+        avt: "",
+        username: "",
+        password: "",
+        fullname: "",
+        email: "",
+        state_email: false,
+        phonenumber: "",
+        state_phonenumber: false);
+    state_email = false;
+    state_phonenumber = false;
+    getSessionId();
+    layThongTinNgDung(widget.user_id);
+    layDsBaiViet(widget.user_id);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const ListTile(
-          title: Text(
-            'Huỳnh Phong',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+    return RefreshIndicator(
+      onRefresh: () => refresh(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: ListTile(
+            title: Text(tTinUser.fullname,
+                style: const TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+          actions: [
+            Padding(
+                padding: const EdgeInsets.only(right: 26),
+                child: tTinUser.id.toString() == sessionId
+                    ? IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (builder) => Informaition()));
+                        },
+                        icon: const Icon(
+                          FontAwesomeIcons.pen,
+                          color: Colors.black,
+                          size: 20,
+                        ),
+                      )
+                    : null),
+          ],
+          backgroundColor: Colors.blue.shade300,
+        ),
+        body: Container(
+          margin: const EdgeInsets.all(15),
+          child: ListView(
+            children: [
+              _buildWallpaper(),
+              _buildNameAccount(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            tTinUser.state_email != 1 &&
+                                    tTinUser.state_phonenumber != 1 &&
+                                    tTinUser.id.toString() == sessionId
+                                ? 'Thông tin liên hệ'
+                                : tTinUser.state_email != 1 &&
+                                        tTinUser.state_phonenumber != 1
+                                    ? ''
+                                    : 'Thông tin liên hệ:',
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            tTinUser.id.toString() == sessionId
+                                ? 'Công khai'
+                                : '',
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                      tTinUser.state_phonenumber != 1 &&
+                              tTinUser.id.toString() == sessionId
+                          ? ListTile(
+                              leading: const Icon(Icons.phone,
+                                  size: 30, color: Colors.green),
+                              title: Text(tTinUser.phonenumber,
+                                  style: const TextStyle(fontSize: 18)),
+                              trailing: tTinUser.id.toString() == sessionId
+                                  ? CupertinoSwitch(
+                                      value: state_phonenumber,
+                                      onChanged: (value) {
+                                        updateStateSdt(tTinUser.id.toString());
+                                        setState(() {
+                                          state_phonenumber = value;
+                                        });
+                                      },
+                                    )
+                                  : null)
+                          : tTinUser.state_phonenumber == 1
+                              ? ListTile(
+                                  leading: const Icon(Icons.phone,
+                                      size: 30, color: Colors.green),
+                                  title: Text(tTinUser.phonenumber,
+                                      style: const TextStyle(fontSize: 18)),
+                                  trailing: tTinUser.id.toString() == sessionId
+                                      ? CupertinoSwitch(
+                                          value: state_phonenumber,
+                                          onChanged: (value) {
+                                            updateStateSdt(
+                                                tTinUser.id.toString());
+                                            setState(() {
+                                              state_phonenumber = value;
+                                            });
+                                          },
+                                        )
+                                      : null)
+                              : const SizedBox(),
+                      tTinUser.state_email != 1 &&
+                              tTinUser.id.toString() == sessionId
+                          ? ListTile(
+                              leading: const Icon(Icons.email,
+                                  size: 30, color: Colors.red),
+                              title: Text(tTinUser.email,
+                                  style: const TextStyle(fontSize: 18)),
+                              trailing: tTinUser.id.toString() == sessionId
+                                  ? CupertinoSwitch(
+                                      value: state_email,
+                                      onChanged: (value) {
+                                        updateStateEmail(
+                                            tTinUser.id.toString());
+                                        setState(() {
+                                          state_email = value;
+                                        });
+                                      },
+                                    )
+                                  : null)
+                          : tTinUser.state_email == 1
+                              ? ListTile(
+                                  leading: const Icon(Icons.email,
+                                      size: 30, color: Colors.red),
+                                  title: Text(tTinUser.email,
+                                      style: const TextStyle(fontSize: 18)),
+                                  trailing: tTinUser.id.toString() == sessionId
+                                      ? CupertinoSwitch(
+                                          value: state_email,
+                                          onChanged: (value) {
+                                            updateStateEmail(
+                                                tTinUser.id.toString());
+                                            setState(() {
+                                              state_email = value;
+                                            });
+                                          },
+                                        )
+                                      : null)
+                              : const SizedBox(),
+                    ],
+                  ),
+                  dsBaiViet.length > 0
+                      ? const Text(
+                          'Bài viết:',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        )
+                      : const SizedBox()
+                ],
+              ),
+              ...(dsBaiViet
+                  .map((baiviet) => ReView(baiViet: BaiViet.fromJson(baiviet))))
+            ],
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 26),
-            child: IconButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (builder) => const Informaition()));
-              },
-              icon: const Icon(
-                FontAwesomeIcons.pen,
-                color: Colors.black,
-                size: 20,
-              ),
-            ),
-          ),
-        ],
-        backgroundColor: Colors.blue.shade300,
-      ),
-      body: ListView(
-        children: [
-          _buildWallpaper(),
-          _buildNameAccount(),
-          Container(
-            height: 50,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Bài viết',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Bộ sưu tập',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -78,24 +262,18 @@ class _DetailsAccountState extends State<DetailsAccount> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 48),
       child: Column(
-        children: const [
+        children: [
           Padding(
-            padding: EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 10),
             child: Text(
-              'Huỳnh Thanh Phong',
-              style: TextStyle(
+              tTinUser.fullname,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          Text(
-            'Đi đến những nơi thật đẹp',
-            style: TextStyle(fontSize: 16, height: 1.4),
-          ),
-          SizedBox(
-            height: 26,
-          ),
+          const SizedBox(height: 26),
         ],
       ),
     );
@@ -124,7 +302,7 @@ class _DetailsAccountState extends State<DetailsAccount> {
       backgroundColor: Colors.white,
       child: CircleAvatar(
         radius: profileHeight / 2 - 5,
-        backgroundImage: const AssetImage('images/meo.jpg'),
+        backgroundImage: NetworkImage(tTinUser.avt),
       ),
     );
   }

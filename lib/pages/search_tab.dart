@@ -37,7 +37,7 @@ class _SearchState extends State<Search> {
             tabs: tabs,
           ),
         ),
-        body: TabBarView(
+        body: const TabBarView(
           children: [
             Hot_Place_Name(),
             ListNew_PlaceName(),

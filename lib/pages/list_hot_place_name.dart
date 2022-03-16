@@ -17,7 +17,7 @@ class _Hot_Place_NameState extends State<Hot_Place_Name> {
   List<DiaDanh> lst = [];
 
   Future<void> layDsDiaDanhHot() async {
-    await API(url: "http://10.0.2.2:8000/ds-dia-danh-hot")
+    await API(url: "https://travellappp.herokuapp.com/ds-dia-danh-hot")
         .getDataString()
         .then((value) {
       dsDiaDanhHot = json.decode(value);
@@ -74,7 +74,7 @@ Widget _buildDiaDanh(BuildContext context, DiaDanh diadanh) {
       children: <Widget>[
         Container(
           height: 150,
-          width: 180,
+          width: 165,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(8),
@@ -94,7 +94,7 @@ Widget _buildDiaDanh(BuildContext context, DiaDanh diadanh) {
         ),
         Container(
           height: 120,
-          width: 180,
+          width: 165,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(8),

@@ -5,7 +5,8 @@ class BaiViet {
   final DateTime ngay_dang;
   final int dia_danh_id;
   final int nguoi_dung_id;
-  final String luot_thich;
+  final int rate;
+  String luot_thich;
 
   BaiViet({
     required this.id,
@@ -14,6 +15,7 @@ class BaiViet {
     required this.ngay_dang,
     required this.dia_danh_id,
     required this.nguoi_dung_id,
+    required this.rate,
     required this.luot_thich,
   });
 
@@ -25,6 +27,7 @@ class BaiViet {
         ngay_dang: DateTime.parse(json["ngay_dang"]),
         dia_danh_id: json["dia_danh_id"],
         nguoi_dung_id: json["nguoi_dung_id"],
+        rate: json["rate"],
         luot_thich: json["so_luot_thich"]);
   }
 }

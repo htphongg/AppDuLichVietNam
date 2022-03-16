@@ -4,11 +4,11 @@ class DiaDanh {
   final String ten_dia_danh;
   final String mo_ta;
   final int luot_checkin;
-  final int luot_thich;
+  int luot_thich;
   final int vung_id;
   final int mien_id;
-  final double kinh_do;
-  final double vi_do;
+  final String kinh_do;
+  final String vi_do;
 
   DiaDanh(
       {required this.id,

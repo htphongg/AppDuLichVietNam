@@ -29,14 +29,16 @@ class _DetailsFoodState extends State<DetailsFood> {
   Iterable dsQuanAn = [];
 
   Future<void> layDsHinhAnh(int mon_an_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-anh-mon/$mon_an_id")
+    await API(url: "https://travellappp.herokuapp.com/ds-anh-mon/$mon_an_id")
         .getDataString()
         .then((value) => dsHinhAnh = json.decode(value));
     setState(() {});
   }
 
   Future<void> layDsQuan(int dia_danh_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-quan-an-dia-danh/$dia_danh_id")
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/ds-quan-an-dia-danh/$dia_danh_id")
         .getDataString()
         .then((value) => dsQuanAn = json.decode(value));
     setState(() {});
@@ -108,7 +110,7 @@ class _DetailsFoodState extends State<DetailsFood> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      f.format(widget.monan.gia) + ' VNĐ',
+                      f.format(int.parse(widget.monan.gia)) + ' VNĐ',
                       style: TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
@@ -116,7 +118,8 @@ class _DetailsFoodState extends State<DetailsFood> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      f.format(widget.monan.gia + 30000) + ' VNĐ',
+                      f.format(int.parse(widget.monan.gia + 30000.toString())) +
+                          ' VNĐ',
                       style: const TextStyle(
                           decoration: TextDecoration.lineThrough,
                           fontSize: 12,

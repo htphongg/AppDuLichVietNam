@@ -2,30 +2,27 @@ import 'dart:convert';
 
 import 'package:app_du_lich/api.dart';
 import 'package:app_du_lich/models/dia_danh.dart';
+import 'package:app_du_lich/models/mien.dart';
 import 'package:app_du_lich/pages/place_name.dart';
 import 'package:flutter/material.dart';
 
-class ListNew_PlaceName extends StatefulWidget {
-  const ListNew_PlaceName({Key? key}) : super(key: key);
+class ResultPlaceName_Domain extends StatefulWidget {
+  final Mien mien;
+  const ResultPlaceName_Domain({Key? key, required this.mien})
+      : super(key: key);
 
   @override
-  _ListNew_PlaceNameState createState() => _ListNew_PlaceNameState();
+  _ResultPlaceName_DomainState createState() => _ResultPlaceName_DomainState();
 }
 
-class _ListNew_PlaceNameState extends State<ListNew_PlaceName> {
-  Iterable dsDiaDanhMoi = [];
-  List<DiaDanh> lst = [];
+class _ResultPlaceName_DomainState extends State<ResultPlaceName_Domain> {
+  Iterable dsDiaDanh = [];
 
-  Future<void> layDsDiaDanhHot() async {
-    await API(url: "https://travellappp.herokuapp.com/lay-ds-dia-danh-moi")
+  Future<void> layDsDiaDanhTheoMien(int mien_id) async {
+    await API(
+            url: "https://travellappp.herokuapp.com/ds-dia-danh-mien/$mien_id")
         .getDataString()
-        .then((value) {
-      dsDiaDanhMoi = json.decode(value);
-    });
-
-    dsDiaDanhMoi.forEach((element) {
-      lst.add(DiaDanh.fromJson(element));
-    });
+        .then((value) => dsDiaDanh = json.decode(value));
     setState(() {});
   }
 
@@ -33,33 +30,33 @@ class _ListNew_PlaceNameState extends State<ListNew_PlaceName> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    layDsDiaDanhHot();
+    layDsDiaDanhTheoMien(widget.mien.id);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.all(10),
-        color: Colors.grey.shade200,
-        child: lst.length > 0
-            ? ListView(
-                children: <Widget>[
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      ...dsDiaDanhMoi.map((diadanh) =>
-                          _buildDiaDanh(context, DiaDanh.fromJson(diadanh))),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              )
-            : const Center(
-                child: CircularProgressIndicator(),
-              ),
+      appBar: AppBar(
+        title: Text(widget.mien.ten_mien),
       ),
+      body: Container(
+          margin: const EdgeInsets.all(10),
+          color: Colors.grey.shade200,
+          child: dsDiaDanh.length > 0
+              ? ListView(
+                  children: <Widget>[
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        ...dsDiaDanh.map((diadanh) =>
+                            _buildDiaDanh(context, DiaDanh.fromJson(diadanh))),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                )
+              : const Center(child: CircularProgressIndicator())),
     );
   }
 }

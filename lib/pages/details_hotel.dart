@@ -27,7 +27,8 @@ class _DetailsHotelState extends State<DetailsHotel> {
   Iterable dsHinhAnh = [];
 
   Future<void> layDsHinhAnhNhaTro(int nha_tro_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-anh-nha-tro/$nha_tro_id")
+    await API(
+            url: "https://travellappp.herokuapp.com/ds-anh-nha-tro/$nha_tro_id")
         .getDataString()
         .then((value) => dsHinhAnh = json.decode(value));
     setState(() {});
@@ -98,7 +99,7 @@ class _DetailsHotelState extends State<DetailsHotel> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      f.format(widget.nhaTro.gia) + ' VNĐ',
+                      f.format(int.parse(widget.nhaTro.gia)) + ' VNĐ',
                       style: TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
@@ -106,7 +107,9 @@ class _DetailsHotelState extends State<DetailsHotel> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      f.format(widget.nhaTro.gia + 50000) + ' VNĐ',
+                      f.format(
+                              int.parse(widget.nhaTro.gia + 50000.toString())) +
+                          ' VNĐ',
                       style: const TextStyle(
                           decoration: TextDecoration.lineThrough,
                           fontSize: 12,

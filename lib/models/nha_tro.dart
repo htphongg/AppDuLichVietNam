@@ -3,7 +3,7 @@ class NhaTro {
   final String avt;
   final String ten;
   final String mo_ta;
-  final int gia;
+  final String gia;
   final String dia_chi;
   final int dia_danh_id;
 

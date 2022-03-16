@@ -2,23 +2,27 @@ import 'dart:convert';
 
 import 'package:app_du_lich/api.dart';
 import 'package:app_du_lich/models/dia_danh.dart';
-import 'package:app_du_lich/models/mien.dart';
+import 'package:app_du_lich/models/hoat_dong.dart';
 import 'package:app_du_lich/pages/place_name.dart';
 import 'package:flutter/material.dart';
 
-class ResultPlaceName extends StatefulWidget {
-  final Mien mien;
-  const ResultPlaceName({Key? key, required this.mien}) : super(key: key);
+class ResultPlaceName_Activity extends StatefulWidget {
+  final HoatDong hoatDong;
+  const ResultPlaceName_Activity({Key? key, required this.hoatDong})
+      : super(key: key);
 
   @override
-  _ResultPlaceNameState createState() => _ResultPlaceNameState();
+  _ResultPlaceName_ActivityState createState() =>
+      _ResultPlaceName_ActivityState();
 }
 
-class _ResultPlaceNameState extends State<ResultPlaceName> {
+class _ResultPlaceName_ActivityState extends State<ResultPlaceName_Activity> {
   Iterable dsDiaDanh = [];
 
-  Future<void> layDsDiaDanhTheoMien(int mien_id) async {
-    await API(url: "http://10.0.2.2:8000/ds-dia-danh-mien/$mien_id")
+  Future<void> layDsDiaDanhTheoHoatDong(int hoat_dong_id) async {
+    await API(
+            url:
+                "https://travellappp.herokuapp.com/ds-dia-danh-hoat-dong/$hoat_dong_id")
         .getDataString()
         .then((value) => dsDiaDanh = json.decode(value));
     setState(() {});
@@ -28,14 +32,14 @@ class _ResultPlaceNameState extends State<ResultPlaceName> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    layDsDiaDanhTheoMien(widget.mien.id);
+    layDsDiaDanhTheoHoatDong(widget.hoatDong.id);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.mien.ten_mien),
+        title: Text(widget.hoatDong.ten),
       ),
       body: Container(
           margin: const EdgeInsets.all(10),
@@ -69,7 +73,7 @@ Widget _buildDiaDanh(BuildContext context, DiaDanh diadanh) {
       children: <Widget>[
         Container(
           height: 150,
-          width: 180,
+          width: 165,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(8),
@@ -89,7 +93,7 @@ Widget _buildDiaDanh(BuildContext context, DiaDanh diadanh) {
         ),
         Container(
           height: 120,
-          width: 180,
+          width: 165,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(8),
