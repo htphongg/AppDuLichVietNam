@@ -36,9 +36,11 @@ class _DetailsAccountState extends State<DetailsAccount> {
                 "https://travellappp.herokuapp.com/thong-tin-ng-dung/$_user_id")
         .getDataString()
         .then((value) => tTinUser = User.fromJson(json.decode(value)));
-    if (tTinUser.state_email == 1) state_email = true;
-    if (tTinUser.state_phonenumber == 1) state_phonenumber = true;
     setState(() {});
+    if (tTinUser.state_email.toString() == "true") state_email = true;
+    if (tTinUser.state_phonenumber.toString() == "true") {
+      state_phonenumber = true;
+    }
   }
 
   Future<void> updateStateEmail(String _user_id) async {
@@ -83,9 +85,9 @@ class _DetailsAccountState extends State<DetailsAccount> {
         password: "",
         fullname: "",
         email: "",
-        state_email: -1,
+        state_email: false,
         phonenumber: "",
-        state_phonenumber: -1);
+        state_phonenumber: false);
     state_email = false;
     state_phonenumber = false;
     getSessionId();

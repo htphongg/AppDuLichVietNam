@@ -99,7 +99,7 @@ class _DetailsHotelState extends State<DetailsHotel> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      f.format(widget.nhaTro.gia) + ' VNĐ',
+                      f.format(int.parse(widget.nhaTro.gia)) + ' VNĐ',
                       style: TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
@@ -107,7 +107,9 @@ class _DetailsHotelState extends State<DetailsHotel> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      f.format(widget.nhaTro.gia + 50000) + ' VNĐ',
+                      f.format(
+                              int.parse(widget.nhaTro.gia + 50000.toString())) +
+                          ' VNĐ',
                       style: const TextStyle(
                           decoration: TextDecoration.lineThrough,
                           fontSize: 12,

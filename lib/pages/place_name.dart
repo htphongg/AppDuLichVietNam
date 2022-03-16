@@ -149,7 +149,8 @@ class _PlaceNameState extends State<PlaceName> {
   void openMap(DiaDanh diaDanh) async {
     final availableMaps = await MapLauncher.installedMaps;
     await availableMaps.first.showMarker(
-      coords: Coords(diaDanh.kinh_do, diaDanh.vi_do),
+      coords:
+          Coords(double.parse(diaDanh.kinh_do), double.parse(diaDanh.vi_do)),
       title: diaDanh.ten_dia_danh,
     );
   }
@@ -245,11 +246,11 @@ class _PlaceNameState extends State<PlaceName> {
                       style: ElevatedButton.styleFrom(
                           primary: Colors.orange.shade900),
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (builder) => WirteReviewPost(
-                                    diaDanhId: widget.diaDanh.id)));
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (builder) => WirteReviewPost(
+                        //             diaDanhId: widget.diaDanh.id)));
                       },
                       child: const Text(
                         'Viết bài đánh giá',
@@ -535,7 +536,7 @@ Widget _buildMonAn(BuildContext context, MonAn monan) {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        f.format(monan.gia) + ' VNĐ',
+                        f.format(int.parse(monan.gia)) + ' VNĐ',
                         style: const TextStyle(color: Colors.red),
                       ),
                       Row(
@@ -707,7 +708,7 @@ Widget _buildNhaTro(BuildContext context, NhaTro nhatro) {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        f.format(nhatro.gia) + ' VNĐ',
+                        f.format(int.parse(nhatro.gia)) + ' VNĐ',
                         style: const TextStyle(color: Colors.red),
                       ),
                       Row(

@@ -5,9 +5,9 @@ class User {
   final String password;
   final String fullname;
   final String email;
-  final int state_email;
+  final bool state_email;
   final String phonenumber;
-  final int state_phonenumber;
+  final bool state_phonenumber;
 
   User(
       {required this.id,

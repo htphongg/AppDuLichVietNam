@@ -110,7 +110,7 @@ class _DetailsFoodState extends State<DetailsFood> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      f.format(widget.monan.gia) + ' VNĐ',
+                      f.format(int.parse(widget.monan.gia)) + ' VNĐ',
                       style: TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
@@ -118,7 +118,8 @@ class _DetailsFoodState extends State<DetailsFood> {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      f.format(widget.monan.gia + 30000) + ' VNĐ',
+                      f.format(int.parse(widget.monan.gia + 30000.toString())) +
+                          ' VNĐ',
                       style: const TextStyle(
                           decoration: TextDecoration.lineThrough,
                           fontSize: 12,

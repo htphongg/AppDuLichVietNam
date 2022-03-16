@@ -144,9 +144,9 @@ class _ReViewState extends State<ReView> {
         password: "",
         fullname: "",
         email: "",
-        state_email: -1,
+        state_email: false,
         phonenumber: "",
-        state_phonenumber: -1);
+        state_phonenumber: false);
     diaDanh = DiaDanh(
         id: 0,
         avt: "",
@@ -156,8 +156,8 @@ class _ReViewState extends State<ReView> {
         luot_thich: 0,
         vung_id: 0,
         mien_id: 0,
-        kinh_do: 0,
-        vi_do: 0);
+        kinh_do: "0",
+        vi_do: "0");
     layTrangThaiThich(widget.baiViet.id);
     layTrangThaiKhongThich(widget.baiViet.id);
     layThongTinNguoiViet(widget.baiViet.nguoi_dung_id);

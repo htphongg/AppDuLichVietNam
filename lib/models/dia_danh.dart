@@ -7,8 +7,8 @@ class DiaDanh {
   int luot_thich;
   final int vung_id;
   final int mien_id;
-  final double kinh_do;
-  final double vi_do;
+  final String kinh_do;
+  final String vi_do;
 
   DiaDanh(
       {required this.id,

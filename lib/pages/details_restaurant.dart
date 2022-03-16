@@ -257,7 +257,7 @@ class _DetailsRestaurantState extends State<DetailsRestaurant> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          f.format(monan.gia) + ' VNĐ',
+                          f.format(int.parse(monan.gia)) + ' VNĐ',
                           style: const TextStyle(color: Colors.red),
                         ),
                         Row(

@@ -24,17 +24,13 @@ class _WirteReviewPostState extends State<WirteReviewPost> {
   Map<String, String> resultDangBai = Map<String, String>();
   double rating = 0;
   File? image;
-  // Map<String, String> headers = {
-  //   'Content-Type': 'application/json;charset=UTF-8',
-  //   'Charset': 'utf-8'
-  // };
   vietBai(
       int dia_danh_id, String tieude, String noidung, String? filename) async {
     dynamic response = await FlutterSession().get("userId");
     String _user_id = response.toString();
 
     var request = http.MultipartRequest(
-        "POST", Uri.parse(" https://travellappp.herokuapp.com/api/viet-bai"));
+        "POST", Uri.parse("https://travellappp.herokuapp.com/api/viet-bai"));
     if (filename != null) {
       request.files.add(await http.MultipartFile.fromPath('images', filename));
     }
